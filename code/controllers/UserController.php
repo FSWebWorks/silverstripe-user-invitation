@@ -2,11 +2,11 @@
 
 class UserController extends Page_Controller
 {
-    private $accepted = false;
 
     private static $allowed_actions = array(
         'index',
         'accept',
+        'success',
         'InvitationForm',
         'AcceptForm'
     );
@@ -58,7 +58,8 @@ class UserController extends Page_Controller
         }
 
         $form->sessionMessage(
-            _t('UserController.SENT_INVITATION', 'An invitation was sent to {email}.', array('email' => $data['Email'])),
+            _t('UserController.SENT_INVITATION', 'An invitation was sent to {email}.',
+                array('email' => $data['Email'])),
             'good'
         );
         return $this->redirectBack();
@@ -123,22 +124,21 @@ class UserController extends Page_Controller
                 );
                 return $this->redirectBack();
             }
-            // Delete invite record
+            // Delete invitation
             if ($invite = UserInvitation::get()->filter('Email', $member->Email)->first()) {
                 $invite->delete();
             }
-            $baseURL = Director::absoluteBaseURL();
-            $form->sessionMessage(
-                _t(
-                    'UserController.ACCEPT_SUCCESS',
-                    'Congragulations! You are now registered member. Visit {site} to log in.',
-                    array('site' => "<a href=\"{$baseURL}\">{$baseURL}</a>")
-                ),
-                'good'
-            );
         }
 
-        return $this->redirectBack();
+        return $this->redirect('success');
+    }
+
+    public function success()
+    {
+        return $this->renderWith(
+            array('UserController_success', 'Page'),
+            array('BaseURL' => Director::absoluteBaseURL())
+        );
     }
 
     private function forbiddenError()
@@ -168,10 +168,4 @@ class UserController extends Page_Controller
             return $this->join_links($url, $action);
         }
     }
-
-    public function getAccepted()
-    {
-        return Session::get('UserInvitation.accepted');
-    }
-
 }
