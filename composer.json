@@ -1,5 +1,5 @@
 {
-    "name": "fspringveldt/user-invitation",
+    "name": "fswebworks/silverstripe-user-invitation",
     "description": "A SilverStripe module to handle user invitations to your secure website.",
     "type": "silverstripe-module",
     "require-dev": {
