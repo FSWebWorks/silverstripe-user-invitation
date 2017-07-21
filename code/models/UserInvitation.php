@@ -103,8 +103,11 @@ class UserInvitation extends DataObject
     public function isExpired()
     {
         $result = false;
-        $days = sprintf('- %s days', self::config()->get('days_to_expiry'));
-        if (strtotime($this->Created) < strtotime($days)) {
+        $days = self::config()->get('days_to_expiry');
+        $time = SS_Datetime::now()->Format('U');
+        $ago = abs($time - strtotime($this->Created));
+        $rounded = round($ago / 86400);
+        if ($rounded > $days) {
             $result = true;
         }
         return $result;

@@ -9,13 +9,14 @@ class UserController extends Page_Controller
         'success',
         'InvitationForm',
         'AcceptForm',
-        'expired'
+        'expired',
+        'notfound'
     );
 
     public function index()
     {
         if (!Member::currentUser()) {
-            return $this->forbiddenError();
+            return $this->redirect('/Security/login');
         }
         return $this->renderWith(array('UserController', 'Page'));
     }
@@ -73,17 +74,21 @@ class UserController extends Page_Controller
             return $this->forbiddenError();
         }
         if ($invite = UserInvitation::get()->filter('TempHash', $hash)->first()) {
-            if($invite->isExpired()){
-                return $this->redirect('expired');
+            if ($invite->isExpired()) {
+                return $this->redirect($this->Link('expired'));
             }
+        } else {
+            return $this->redirect($this->Link('notfound'));
         }
-        return $this->renderWith(array('UserController_accept', 'Page'));
+        return $this->renderWith(array('UserController_accept', 'Page'), array('Invite' => $invite));
     }
 
     public function AcceptForm()
     {
         $hash = $this->getRequest()->param('ID');
-        $firstName = ($invite = UserInvitation::get()->filter('TempHash', $hash)->first()) ? $invite->FirstName : '';
+        $invite = UserInvitation::get()->filter('TempHash', $hash)->first();
+        $firstName = ($invite) ? $invite->FirstName : '';
+        $email = ($invite) ? $invite->Email : '';
 
         $fields = FieldList::create(
             TextField::create(
@@ -136,7 +141,7 @@ class UserController extends Page_Controller
             }
         }
 
-        return $this->redirect('success');
+        return $this->redirect($this->Link('success'));
     }
 
     public function success()
@@ -149,9 +154,12 @@ class UserController extends Page_Controller
 
     public function expired()
     {
-        return $this->renderWith(
-            array('UserController_expired', 'Page')
-        );
+        return $this->renderWith(array('UserController_expired', 'Page'));
+    }
+
+    public function notfound()
+    {
+        return $this->renderWith(array('UserController_notfound', 'Page'));
     }
 
     private function forbiddenError()
