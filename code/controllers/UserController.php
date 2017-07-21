@@ -8,7 +8,8 @@ class UserController extends Page_Controller
         'accept',
         'success',
         'InvitationForm',
-        'AcceptForm'
+        'AcceptForm',
+        'expired'
     );
 
     public function index()
@@ -70,6 +71,11 @@ class UserController extends Page_Controller
     {
         if (!$hash = $this->getRequest()->param('ID')) {
             return $this->forbiddenError();
+        }
+        if ($invite = UserInvitation::get()->filter('TempHash', $hash)->first()) {
+            if($invite->isExpired()){
+                return $this->redirect('expired');
+            }
         }
         return $this->renderWith(array('UserController_accept', 'Page'));
     }
@@ -138,6 +144,13 @@ class UserController extends Page_Controller
         return $this->renderWith(
             array('UserController_success', 'Page'),
             array('BaseURL' => Director::absoluteBaseURL())
+        );
+    }
+
+    public function expired()
+    {
+        return $this->renderWith(
+            array('UserController_expired', 'Page')
         );
     }
 

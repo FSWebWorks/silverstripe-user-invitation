@@ -95,4 +95,18 @@ class UserInvitation extends DataObject
         }
         return $valid;
     }
+
+    /**
+     * Checks if this invitation has expired
+     * @return bool
+     */
+    public function isExpired()
+    {
+        $result = false;
+        $days = sprintf('- %s days', self::config()->get('days_to_expiry'));
+        if (strtotime($this->Created) < strtotime($days)) {
+            $result = true;
+        }
+        return $result;
+    }
 }

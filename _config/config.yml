@@ -1,5 +1,5 @@
 ---
 Name: userinvitationconfig
 ---
-UserController:
-  expire_after_mins: 150
+UserInvitation:
+  days_to_expiry: 2 # Days until an invitation expires
