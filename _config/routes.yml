@@ -1,0 +1,7 @@
+---
+Name: userinvitationroutes
+After: framework/routes#coreroutes
+---
+Director:
+  rules:
+    'user//$Action/$ID': 'UserController'

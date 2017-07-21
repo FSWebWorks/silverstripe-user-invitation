@@ -1,0 +1,5 @@
+---
+Name: userinvitationconfig
+---
+UserController:
+  expire_after_mins: 150

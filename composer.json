@@ -1,0 +1,16 @@
+{
+    "name": "fspringveldt/user-invitation",
+    "description": "A SilverStripe module to handle user invitations to your secure website.",
+    "type": "silverstripe-module",
+    "require-dev": {
+        "silverstripe/framework": "^3.6"
+    },
+    "license": "BSD-3-Clause",
+    "authors": [
+        {
+            "name": "Franco Springveldt",
+            "email": "franco@fswebworks.co.za"
+        }
+    ],
+    "require": {}
+}
