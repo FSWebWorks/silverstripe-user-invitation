@@ -1,4 +1,4 @@
-# Silverstripe User Invitation
+# SilverStripe User Invitation
 
 ## Introduction
 
