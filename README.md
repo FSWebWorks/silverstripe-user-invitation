@@ -1,6 +1,6 @@
 # SilverStripe User Invitation
 
-[![Build Status](http://img.shields.io/travis/FSWebWorks/silverstripe-user-invitation.png?style=flat-square)](http://travis-ci.org/FSWebWorks/silverstripe-user-invitation)
+[![Build Status](https://scrutinizer-ci.com/g/FSWebWorks/silverstripe-user-invitation/badges/build.png?b=master)](https://scrutinizer-ci.com/g/FSWebWorks/silverstripe-user-invitation/build-status/master)
 [![scrutinizer](https://scrutinizer-ci.com/g/fswebworks/silverstripe-user-invitation/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/fswebworks/silverstripe-user-invitation/)
 [![Code Coverage](https://codecov.io/gh/fswebworks/silverstripe-user-invitation/branch/master/graph/badge.svg)](https://codecov.io/gh/fswebworks/silverstripe-user-invitation)
 [![License](http://img.shields.io/packagist/l/fswebworks/silverstripe-user-invitation.svg?style=flat-square)](LICENSE.md)
