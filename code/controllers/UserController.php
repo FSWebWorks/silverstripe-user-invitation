@@ -1,6 +1,6 @@
 <?php
 
-class UserController extends ContentController
+class UserController extends Controller
 {
 
     private static $allowed_actions = array(

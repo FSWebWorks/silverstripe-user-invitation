@@ -24,7 +24,7 @@ before_script:
   - cd ~/build/ss
 
 script:
-  - vendor/bin/phpunit "$COVERAGE" user-invitation/tests
+  - vendor/bin/phpunit "$COVERAGE" silverstripe-user-invitation/tests
 
 after_success:
   - >

@@ -1,6 +1,6 @@
 # SilverStripe User Invitation
 
-[![Build Status](https://secure.travis-ci.org/fswebworks/silverstripe-user-invitation.png)](http://travis-ci.org/fswebworks/silverstripe-user-invitation)
+[![Build Status](https://secure.travis-ci.org/FSWebWorks/silverstripe-user-invitation.png)](http://travis-ci.org/FSWebWorks/silverstripe-user-invitation)
 
 ## Introduction
 
