@@ -54,7 +54,7 @@ class UserInvitation extends DataObject
      */
     public function sendInvitation()
     {
-        $email = Email::create()
+        return Email::create()
             ->setFrom(Email::config()->get('admin_email'))
             ->setTo($this->Email)
             ->setSubject(
@@ -90,8 +90,10 @@ class UserInvitation extends DataObject
 
         if (Member::get()->filter('Email', $this->Email)->first()) {
             // Member already exists
-            $valid->error(_t('UserInvitation.MEMBER_ALREADY_EXISTS',
-                'This person is already a member of this system.'));
+            $valid->error(_t(
+                'UserInvitation.MEMBER_ALREADY_EXISTS',
+                'This person is already a member of this system.'
+            ));
         }
         return $valid;
     }

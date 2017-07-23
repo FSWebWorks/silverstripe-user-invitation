@@ -1,5 +1,7 @@
 # SilverStripe User Invitation
 
+[![Build Status](https://secure.travis-ci.org/fswebworks/silverstripe-user-invitation.png)](http://travis-ci.org/fswebworks/silverstripe-user-invitation)
+
 ## Introduction
 
 This module adds the ability to invite users to a secure website (e.g. Intranet or Extranet).

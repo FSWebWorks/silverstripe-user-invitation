@@ -1,0 +1,16 @@
+Member:
+  jane:
+    FirstName: Jane
+    Surname: Doe
+    Email: jane@doe.person
+UserInvitation:
+  joe:
+    FirstName: Joe
+    Email: joe@soap.person
+    InvitedBy: Member.jane
+  expired:
+    FirstName: Slow
+    Email: slow@joe.person
+    InvitedBy: Member.jane
+    TempHash: kljlwer23432xvdsf
+    Created: 2016-01-01 11:00:00

@@ -1,6 +1,6 @@
 <?php
 
-class UserController extends Page_Controller
+class UserController extends ContentController
 {
 
     private static $allowed_actions = array(
@@ -15,7 +15,7 @@ class UserController extends Page_Controller
 
     public function index()
     {
-        if (!Member::currentUser()) {
+        if (!Member::currentUserID()) {
             return $this->redirect('/Security/login');
         }
         return $this->renderWith(array('UserController', 'Page'));
@@ -60,8 +60,11 @@ class UserController extends Page_Controller
         }
 
         $form->sessionMessage(
-            _t('UserController.SENT_INVITATION', 'An invitation was sent to {email}.',
-                array('email' => $data['Email'])),
+            _t(
+                'UserController.SENT_INVITATION',
+                'An invitation was sent to {email}.',
+                array('email' => $data['Email'])
+            ),
             'good'
         );
         return $this->redirectBack();
@@ -88,7 +91,6 @@ class UserController extends Page_Controller
         $hash = $this->getRequest()->param('ID');
         $invite = UserInvitation::get()->filter('TempHash', $hash)->first();
         $firstName = ($invite) ? $invite->FirstName : '';
-        $email = ($invite) ? $invite->Email : '';
 
         $fields = FieldList::create(
             TextField::create(
@@ -117,10 +119,10 @@ class UserController extends Page_Controller
      */
     public function saveInvite($data, Form $form)
     {
+        if (!$invite = UserInvitation::get()->filter('TempHash', $data['HashID'])->first()) {
+            return $this->notFoundError();
+        }
         if ($form->validate()) {
-            if (!$invite = UserInvitation::get()->filter('TempHash', $data['HashID'])->first()) {
-                return $this->notFoundError();
-            }
             $member = Member::create();
             $member->Email = $invite->Email;
             $form->saveInto($member);
@@ -136,12 +138,15 @@ class UserController extends Page_Controller
                 return $this->redirectBack();
             }
             // Delete invitation
-            if ($invite = UserInvitation::get()->filter('Email', $member->Email)->first()) {
-                $invite->delete();
-            }
+            $invite->delete();
+            return $this->redirect($this->Link('success'));
+        } else {
+            $form->sessionMessage(
+                Convert::array2json($form->getValidator()->getErrors()),
+                'bad'
+            );
+            return $this->redirectBack();
         }
-
-        return $this->redirect($this->Link('success'));
     }
 
     public function success()
@@ -169,7 +174,7 @@ class UserController extends Page_Controller
 
     private function notFoundError()
     {
-        return $this->httpError(403, _t('UserController.404_NOTICE', 'Oops, the invitation ID was not found.'));
+        return $this->redirect($this->Link('notfound'));
     }
 
     /**
