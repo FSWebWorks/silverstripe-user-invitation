@@ -22,3 +22,11 @@ This module adds the ability to invite users to a secure website (e.g. Intranet 
  ```sh
  $ composer require fswebworks/silverstripe-user-invitation
  ```
+
+## Maintainer
+
+Franco Springveldt - franco@fswebworks.co.za
+
+## License
+
+This module is licensed under the [MIT license](LICENSE).
