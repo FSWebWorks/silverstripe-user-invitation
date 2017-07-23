@@ -1,9 +1,8 @@
 # SilverStripe User Invitation
 
 [![Build Status](http://img.shields.io/travis/FSWebWorks/silverstripe-user-invitation.png?style=flat-square)](http://travis-ci.org/FSWebWorks/silverstripe-user-invitation)
-[![Code Quality](http://img.shields.io/scrutinizer/g/FSWebWorks/silverstripe-user-invitation.svg?style=flat-square)](https://scrutinizer-ci.com/g/FSWebWorks/silverstripe-user-invitation)
-[![Code Coverage](http://img.shields.io/scrutinizer/coverage/g/FSWebWorks/silverstripe-user-invitation.svg?style=flat-square)](https://scrutinizer-ci.com/g/FSWebWorks/silverstripe-user-invitation)
-[![Version](http://img.shields.io/packagist/v/fswebworks/silverstripe-user-invitation.svg?style=flat-square)](https://packagist.org/packages/fswebworks/silverstripe-user-invitation)
+[![scrutinizer](https://scrutinizer-ci.com/g/fswebworks/silverstripe-user-invitation/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/fswebworks/silverstripe-user-invitation/)
+[![Code Coverage](https://codecov.io/gh/fswebworks/silverstripe-user-invitation/branch/master/graph/badge.svg)](https://codecov.io/gh/fswebworks/silverstripe-user-invitation)
 [![License](http://img.shields.io/packagist/l/fswebworks/silverstripe-user-invitation.svg?style=flat-square)](LICENSE.md)
 
 ## Introduction
