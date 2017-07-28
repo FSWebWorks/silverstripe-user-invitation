@@ -16,5 +16,10 @@
     "require": {
         "silverstripe/framework": "^3.6"
     },
-    "minimum-stability": "stable"
+    "minimum-stability": "stable",
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0.x-dev"
+        }
+    }
 }
