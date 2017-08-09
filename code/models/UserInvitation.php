@@ -8,15 +8,24 @@
  * @property string FirstName
  * @property string Email
  * @property string TempHash
+ * @property string Groups
  * @property int InvitedByID
  * @property Member InvitedBy
+ *
  */
 class UserInvitation extends DataObject
 {
+    /**
+     * Used to control whether a group selection on the invitation form is required.
+     * @var bool
+     */
+    private static $force_require_group = false;
+
     private static $db = array(
         'FirstName' => 'Varchar',
         'Email' => 'Varchar(254)',
-        'TempHash' => 'Varchar'
+        'TempHash' => 'Varchar',
+        'Groups' => 'Text'
     );
 
     private static $has_one = array(

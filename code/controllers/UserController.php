@@ -23,14 +23,23 @@ class UserController extends Controller
 
     public function InvitationForm()
     {
+        $groups = Member::currentUser()->Groups()->map('Code', 'Title')->toArray();
         $fields = FieldList::create(
             TextField::create('FirstName', _t('UserController.INVITE_FIRSTNAME', 'First name:')),
-            EmailField::create('Email', _t('UserController.INVITE_EMAIL', 'Invite email:'))
+            EmailField::create('Email', _t('UserController.INVITE_EMAIL', 'Invite email:')),
+            ListboxField::create('Groups', _t('UserController.INVITE_GROUP', 'Add to group'), $groups)
+                ->setMultiple(true)
+                ->setRightTitle(_t('UserController.INVITE_GROUP_RIGHTTITLE', 'Ctrl + click to select multiple'))
         );
         $actions = FieldList::create(
             FormAction::create('sendInvite', _t('UserController.SEND_INVITATION', 'Send Invitation'))
         );
         $requiredFields = RequiredFields::create('FirstName', 'Email');
+
+        if (UserInvitation::config()->get('force_require_group')) {
+            $requiredFields->addRequiredField('Groups');
+        }
+
         $form = new Form($this, 'InvitationForm', $fields, $actions, $requiredFields);
         $this->extend('updateInvitationForm', $form);
         return $form;
@@ -44,20 +53,30 @@ class UserController extends Controller
      */
     public function sendInvite($data, Form $form)
     {
-        if ($form->validate()) {
-            $invite = UserInvitation::create();
-            $form->saveInto($invite);
-            try {
-                $invite->write();
-            } catch (ValidationException $e) {
-                $form->sessionMessage(
-                    $e->getMessage(),
-                    'bad'
-                );
-                return $this->redirectBack();
-            }
-            $invite->sendInvitation();
+        if (!$form->validate()) {
+            $form->sessionMessage(
+                _t(
+                    'UserController.SENT_INVITATION_VALIDATION_FAILED',
+                    'At least one error occured while trying to save your invite: {error}',
+                    array('error' => $form->getValidator()->getErrors()[0]['fieldName'])
+                ),
+                'bad'
+            );
+            return $this->redirectBack();
         }
+
+        $invite = UserInvitation::create();
+        $form->saveInto($invite);
+        try {
+            $invite->write();
+        } catch (ValidationException $e) {
+            $form->sessionMessage(
+                $e->getMessage(),
+                'bad'
+            );
+            return $this->redirectBack();
+        }
+        $invite->sendInvitation();
 
         $form->sessionMessage(
             _t(
@@ -123,12 +142,16 @@ class UserController extends Controller
             return $this->notFoundError();
         }
         if ($form->validate()) {
-            $member = Member::create();
-            $member->Email = $invite->Email;
+            $member = Member::create(array('Email' => $invite->Email));
             $form->saveInto($member);
             try {
                 if ($member->validate()) {
                     $member->write();
+                    // Add user group info
+                    $groups = explode(',', $invite->Groups);
+                    foreach ($groups as $groupCode) {
+                        $member->addToGroupByCode($groupCode);
+                    }
                 }
             } catch (ValidationException $e) {
                 $form->sessionMessage(

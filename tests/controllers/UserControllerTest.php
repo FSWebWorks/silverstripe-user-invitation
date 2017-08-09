@@ -47,6 +47,7 @@ class UserControllerTest extends FunctionalTest
         $this->assertInstanceOf('Form', $form);
         $this->assertNotNull($form->Fields()->fieldByName('FirstName'));
         $this->assertNotNull($form->Fields()->fieldByName('Email'));
+        $this->assertNotNull($form->Fields()->fieldByName('Groups'));
     }
 
     /**
@@ -54,19 +55,47 @@ class UserControllerTest extends FunctionalTest
      */
     public function testSendInvite()
     {
+        $this->loginAsJane();
         /** @var Form $form */
         $data = array(
             'FirstName' => 'Joe',
-            'Email' => 'joe@example.com'
+            'Email' => 'joe@example.com',
+            'Groups' => array('test1', 'test2')
         );
         $response = $this->controller->sendInvite($data, $this->controller->InvitationForm()->loadDataFrom($data));
-        $invitation = UserInvitation::get()->filter('Email', 'joe@example.com');
-        $this->assertEquals(1, $invitation->count());
+        $invitation = UserInvitation::get()->filter('Email', $data['Email']);
+        $this->assertCount(1, $invitation);
         /** @var UserInvitation $invitation */
         $joe = $invitation->first();
         $this->assertEquals('Joe', $joe->FirstName);
         $this->assertEquals('joe@example.com', $joe->Email);
+        $this->assertEquals('test1,test2', $joe->Groups);
         $this->assertEquals(302, $response->getStatusCode());
+    }
+
+    /**
+     * Tests whether switching the UserInvitation::force_require_group has an effect or not
+     */
+    public function testGroupFieldNotRequired()
+    {
+        $this->loginAsJane();
+        $data = array(
+            'FirstName' => 'Joe',
+            'Email' => 'joe@example.com',
+            'Groups' => array('test1', 'test2')
+        );
+        $form = $this->controller->InvitationForm()->loadDataFrom($data);
+        $this->assertTrue($form->validate());
+
+        Config::inst()->update('UserInvitation', 'force_require_group', true);
+        unset($data['Groups']);
+        $form = $this->controller->InvitationForm()->loadDataFrom($data);
+        $this->assertFalse($form->validate());
+    }
+
+    private function loginAsJane()
+    {
+        $this->logInAs($this->objFromFixture('Member', 'jane'));
     }
 
     /**
@@ -137,8 +166,14 @@ class UserControllerTest extends FunctionalTest
         // Assert that invitation is deleted
         $this->assertNull(UserInvitation::get()->filter('Email', $invitation->Email)->first());
 
+        /** @var Member $joe */
+        $joe = Member::get()->filter('Email', $invitation->Email)->first();
         // Assert that member is created
-        $this->assertTrue(Member::get()->filter('Email', $invitation->Email)->first()->exists());
+        $this->assertTrue($joe->exists());
+
+        // Assert that member belongs to the groups selected
+        $this->assertTrue($joe->inGroup($this->objFromFixture('Group', 'test1')));
+        $this->assertTrue($joe->inGroup($this->objFromFixture('Group', 'test2')));
     }
 
     /**
