@@ -17,7 +17,7 @@ This module adds the ability to invite users to a secure website (e.g. Intranet 
 
 * Quick-entry invitation form (By default only first name and email fields are required to invite someone)
 * Sends email invitations to recipient
-* Supports optional user group aqssignment (See below for how to enforce this group selection) 
+* Supports optional user group assignment (See below for how to enforce this group selection) 
 * Invitation expiry can be set via configuration.
 * Default SilverStripe member validation is applied.
 

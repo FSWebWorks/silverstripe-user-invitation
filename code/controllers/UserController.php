@@ -53,7 +53,6 @@ class UserController extends Controller
      */
     public function sendInvite($data, Form $form)
     {
-
         if (!$form->validate()) {
             $form->sessionMessage(
                 _t(
