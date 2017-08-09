@@ -1,14 +1,23 @@
+Group:
+  test1:
+    Code: test1
+    Title: Test group 1
+  test2:
+    Code: test2
+    Title: Test group 2
 Member:
   jane:
     FirstName: Jane
     Surname: Doe
     Email: jane@doe.person
+    Groups: =>Group.test1, =>Group.test2
 UserInvitation:
   joe:
     FirstName: Joe
     Email: joe@soap.person
     InvitedBy: Member.jane
     TempHash: 234jlkjf798723lj4
+    Groups: 'test1,test2'
   expired:
     FirstName: Slow
     Email: slow@joe.person

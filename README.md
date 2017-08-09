@@ -15,10 +15,18 @@ This module adds the ability to invite users to a secure website (e.g. Intranet 
 
 ## Features
 
-* Only a first name and email is needed to send an invite
-* Sends invitation email to recipients.
+* Quick-entry invitation form (By default only first name and email fields are required to invite someone)
+* Sends email invitations to recipient
+* Supports optional user group aqssignment (See below for how to enforce this group selection) 
 * Invitation expiry can be set via configuration.
 * Default SilverStripe member validation is applied.
+
+### Force required user group assignment
+Place the following in your mysite/_config/config.yml
+```yml
+UserInvitation:
+    force_require_group: true
+```
 
 ## Installation
 
