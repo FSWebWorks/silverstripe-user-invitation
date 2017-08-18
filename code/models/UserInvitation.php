@@ -123,4 +123,10 @@ class UserInvitation extends DataObject
         }
         return $result;
     }
+
+    public function canCreate($member = null){
+        return Permission::check('ACCESS_USER_INVITATIONS');
+    }
+
+    
 }

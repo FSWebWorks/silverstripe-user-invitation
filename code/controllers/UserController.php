@@ -1,6 +1,6 @@
 <?php
 
-class UserController extends Controller
+class UserController extends Controller implements PermissionProvider
 {
 
     private static $allowed_actions = array(
@@ -12,6 +12,17 @@ class UserController extends Controller
         'expired',
         'notfound'
     );
+
+    public function providePermissions()
+    {
+         return array(
+            'ACCESS_USER_INVITATIONS' => array(
+                'name' => _t('UserController.ACCESS_PERMISSIONS', 'Allow user invitations'),
+                'category' => _t('UserController.CMS_ACCESS_CATEGORY', 'User Invitations')
+            )
+        );
+    }
+
 
     public function index()
     {
