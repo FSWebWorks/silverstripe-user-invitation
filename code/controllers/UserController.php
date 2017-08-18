@@ -17,8 +17,9 @@ class UserController extends Controller
     {
         if (!Member::currentUserID()) {
             return $this->redirect('/Security/login');
-        }
-        return $this->renderWith(array('UserController', 'Page'));
+        } else if (UserInvitation::create()->canCreate(Member::CurrentUser()) == false){
+            return Security::permissionFailure();
+        } else return $this->renderWith(array('UserController', 'Page'));
     }
 
     public function InvitationForm()
@@ -66,27 +67,35 @@ class UserController extends Controller
         }
 
         $invite = UserInvitation::create();
-        $form->saveInto($invite);
-        try {
-            $invite->write();
-        } catch (ValidationException $e) {
+        if ($invite->canCreate(Member::CurrentUser()) == true){
+            $form->saveInto($invite);
+            try {
+                $invite->write();
+            } catch (ValidationException $e) {
+                $form->sessionMessage(
+                    $e->getMessage(),
+                    'bad'
+                );
+                return $this->redirectBack();
+            }
+            $invite->sendInvitation();
+
             $form->sessionMessage(
-                $e->getMessage(),
+                _t(
+                    'UserController.SENT_INVITATION',
+                    'An invitation was sent to {email}.',
+                    array('email' => $data['Email'])
+                ),
+                'good'
+            );
+            return $this->redirectBack();
+        } else {
+            $form->sessionMessage(
+                "You don't have permission to create user invitations",
                 'bad'
             );
             return $this->redirectBack();
         }
-        $invite->sendInvitation();
-
-        $form->sessionMessage(
-            _t(
-                'UserController.SENT_INVITATION',
-                'An invitation was sent to {email}.',
-                array('email' => $data['Email'])
-            ),
-            'good'
-        );
-        return $this->redirectBack();
     }
 
 
