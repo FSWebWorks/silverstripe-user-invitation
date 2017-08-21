@@ -28,8 +28,9 @@ class UserController extends Controller implements PermissionProvider
     {
         if (!Member::currentUserID()) {
             return $this->redirect('/Security/login');
-        } else if (UserInvitation::create()->canCreate(Member::CurrentUser()) == false){
-            return Security::permissionFailure();
+        } else if (!Permission::check('ACCESS_USER_INVITATIONS')){
+                return Security::permissionFailure();
+            
         } else return $this->renderWith(array('UserController', 'Page'));
     }
 
@@ -78,7 +79,7 @@ class UserController extends Controller implements PermissionProvider
         }
 
         $invite = UserInvitation::create();
-        if ($invite->canCreate(Member::CurrentUser()) == true){
+        if (!Permission::check('ACCESS_USER_INVITATIONS')){
             $form->saveInto($invite);
             try {
                 $invite->write();
