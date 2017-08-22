@@ -39,6 +39,17 @@ class UserControllerTest extends FunctionalTest
     }
 
     /**
+     * Tests that you can't access the index action without the requisite permission
+     */
+    public function testCantAccessWithoutPermission()
+    {
+        $this->loginInAsSomeone('john');
+        $response = $this->get($this->controller->Link('index'));
+        $this->assertEquals(403, $response->getStatusCode());
+        $this->autoFollowRedirection = true;
+    }
+
+    /**
      * Tests if a form is returned and that expected fields are present
      */
     public function testInvitationForm()
@@ -55,13 +66,9 @@ class UserControllerTest extends FunctionalTest
      */
     public function testSendInvite()
     {
-        $this->loginAsJane();
+        $this->loginInAsSomeone('jane');
         /** @var Form $form */
-        $data = array(
-            'FirstName' => 'Joe',
-            'Email' => 'joe@example.com',
-            'Groups' => array('test1', 'test2')
-        );
+        $data = $this->invitationData();
         $response = $this->controller->sendInvite($data, $this->controller->InvitationForm()->loadDataFrom($data));
         $invitation = UserInvitation::get()->filter('Email', $data['Email']);
         $this->assertCount(1, $invitation);
@@ -73,12 +80,35 @@ class UserControllerTest extends FunctionalTest
         $this->assertEquals(302, $response->getStatusCode());
     }
 
+    public function invitationData()
+    {
+        return array(
+            'FirstName' => 'Joe',
+            'Email' => 'joe@example.com',
+            'Groups' => array('test1', 'test2')
+        );
+    }
+
+    /**
+     * Tests that no invitation gets sent out without requisite permissions.
+     */
+    public function testSendInvitePermissionDenied()
+    {
+        $this->loginInAsSomeone('john');
+        /** @var Form $form */
+        $data = $this->invitationData();
+        $response = $this->controller->sendInvite($data, $this->controller->InvitationForm()->loadDataFrom($data));
+        $invitation = UserInvitation::get()->filter('Email', $data['Email']);
+        $this->assertCount(0, $invitation);
+        $this->assertEquals(302, $response->getStatusCode());
+    }
+
     /**
      * Tests whether switching the UserInvitation::force_require_group has an effect or not
      */
     public function testGroupFieldNotRequired()
     {
-        $this->loginAsJane();
+        $this->loginInAsSomeone('jane');
         $data = array(
             'FirstName' => 'Joe',
             'Email' => 'joe@example.com',
@@ -93,10 +123,10 @@ class UserControllerTest extends FunctionalTest
         $this->assertFalse($form->validate());
     }
 
-    private function loginAsJane()
+    private function loginInAsSomeone($name)
     {
-        $member = $this->objFromFixture('Member', 'jane');
-        $member->addToGroupByCode('admin-group'); // Need to have access to /admin to create user invitations
+        /** @var Member $member */
+        $member = $this->objFromFixture('Member', $name);
         $this->logInAs($member);
     }
 
@@ -223,5 +253,16 @@ class UserControllerTest extends FunctionalTest
     {
         $this->assertEquals('user/accept', $this->controller->Link('accept'));
         $this->assertEquals('user/index', $this->controller->Link('index'));
+    }
+
+    /**
+     * Tests that the array key is returned
+     */
+    public function testProvidePermissions()
+    {
+        $permissions = $this->controller->providePermissions();
+        $this->assertArrayHasKey('ACCESS_USER_INVITATIONS', $permissions);
+        $this->assertArrayHasKey('name', $permissions['ACCESS_USER_INVITATIONS']);
+        $this->assertArrayHasKey('category', $permissions['ACCESS_USER_INVITATIONS']);
     }
 }
