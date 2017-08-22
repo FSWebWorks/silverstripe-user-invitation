@@ -128,5 +128,4 @@ class UserInvitation extends DataObject
         return Permission::check('ACCESS_USER_INVITATIONS');
     }
 
-    
 }

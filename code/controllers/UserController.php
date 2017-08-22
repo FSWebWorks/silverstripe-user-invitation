@@ -66,6 +66,16 @@ class UserController extends Controller implements PermissionProvider
      */
     public function sendInvite($data, Form $form)
     {
+        if (!Permission::check('ACCESS_USER_INVITATIONS')){
+            $form->sessionMessage(
+                _t(
+                    'UserController.PERMISSION_FAILURE',
+                    "You don't have permission to create user invitations"
+                ),
+                'bad'
+            );
+            return $this->redirectBack();
+        }
         if (!$form->validate()) {
             $form->sessionMessage(
                 _t(
@@ -79,35 +89,28 @@ class UserController extends Controller implements PermissionProvider
         }
 
         $invite = UserInvitation::create();
-        if (!Permission::check('ACCESS_USER_INVITATIONS')){
-            $form->saveInto($invite);
-            try {
-                $invite->write();
-            } catch (ValidationException $e) {
-                $form->sessionMessage(
-                    $e->getMessage(),
-                    'bad'
-                );
-                return $this->redirectBack();
-            }
-            $invite->sendInvitation();
-
+        $form->saveInto($invite);
+        try {
+            $invite->write();
+        } catch (ValidationException $e) {
             $form->sessionMessage(
-                _t(
-                    'UserController.SENT_INVITATION',
-                    'An invitation was sent to {email}.',
-                    array('email' => $data['Email'])
-                ),
-                'good'
-            );
-            return $this->redirectBack();
-        } else {
-            $form->sessionMessage(
-                "You don't have permission to create user invitations",
+                $e->getMessage(),
                 'bad'
             );
             return $this->redirectBack();
         }
+        $invite->sendInvitation();
+
+        $form->sessionMessage(
+            _t(
+                'UserController.SENT_INVITATION',
+                'An invitation was sent to {email}.',
+                array('email' => $data['Email'])
+            ),
+            'good'
+        );
+        return $this->redirectBack();
+        
     }
 
 
