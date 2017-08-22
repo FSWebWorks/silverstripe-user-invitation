@@ -1,6 +1,6 @@
 <?php
 
-class UserController extends Controller
+class UserController extends Controller implements PermissionProvider
 {
 
     private static $allowed_actions = array(
@@ -13,12 +13,25 @@ class UserController extends Controller
         'notfound'
     );
 
+    public function providePermissions()
+    {
+         return array(
+            'ACCESS_USER_INVITATIONS' => array(
+                'name' => _t('UserController.ACCESS_PERMISSIONS', 'Allow user invitations'),
+                'category' => _t('UserController.CMS_ACCESS_CATEGORY', 'User Invitations')
+            )
+        );
+    }
+
+
     public function index()
     {
         if (!Member::currentUserID()) {
             return $this->redirect('/Security/login');
-        }
-        return $this->renderWith(array('UserController', 'Page'));
+        } else if (!Permission::check('ACCESS_USER_INVITATIONS')){
+                return Security::permissionFailure();
+            
+        } else return $this->renderWith(array('UserController', 'Page'));
     }
 
     public function InvitationForm()
@@ -53,6 +66,16 @@ class UserController extends Controller
      */
     public function sendInvite($data, Form $form)
     {
+        if (!Permission::check('ACCESS_USER_INVITATIONS')){
+            $form->sessionMessage(
+                _t(
+                    'UserController.PERMISSION_FAILURE',
+                    "You don't have permission to create user invitations"
+                ),
+                'bad'
+            );
+            return $this->redirectBack();
+        }
         if (!$form->validate()) {
             $form->sessionMessage(
                 _t(
@@ -87,6 +110,7 @@ class UserController extends Controller
             'good'
         );
         return $this->redirectBack();
+        
     }
 
 

@@ -95,7 +95,9 @@ class UserControllerTest extends FunctionalTest
 
     private function loginAsJane()
     {
-        $this->logInAs($this->objFromFixture('Member', 'jane'));
+        $member = $this->objFromFixture('Member', 'jane');
+        $member->addToGroupByCode('admin-group'); // Need to have access to /admin to create user invitations
+        $this->logInAs($member);
     }
 
     /**
