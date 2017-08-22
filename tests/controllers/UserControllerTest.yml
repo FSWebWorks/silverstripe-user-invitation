@@ -1,3 +1,6 @@
+Permission:
+  userInvitationPermission:
+    Code: ACCESS_USER_INVITATIONS
 Group:
   test1:
     Code: test1
@@ -5,12 +8,21 @@ Group:
   test2:
     Code: test2
     Title: Test group 2
+  permittedGroup:
+    Code: permitted-group
+    Title: Group with permission to user invitation
+    Permissions: =>Permission.userInvitationPermission
 Member:
   jane:
     FirstName: Jane
     Surname: Doe
     Email: jane@doe.person
-    Groups: =>Group.test1, =>Group.test2
+    Groups: =>Group.test1, =>Group.test2, =>Group.permittedGroup
+  john:
+    FirstName: John
+    Surname: Doe
+    Email: john@doe.person
+    Groups: =>Group.test2
 UserInvitation:
   joe:
     FirstName: Joe
