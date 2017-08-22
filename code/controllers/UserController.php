@@ -28,10 +28,11 @@ class UserController extends Controller implements PermissionProvider
     {
         if (!Member::currentUserID()) {
             return $this->redirect('/Security/login');
-        } else if (!Permission::check('ACCESS_USER_INVITATIONS')){
+        } elseif (!Permission::check('ACCESS_USER_INVITATIONS')) {
                 return Security::permissionFailure();
-            
-        } else return $this->renderWith(array('UserController', 'Page'));
+        } else {
+            return $this->renderWith(array('UserController', 'Page'));
+        }
     }
 
     public function InvitationForm()
@@ -66,7 +67,7 @@ class UserController extends Controller implements PermissionProvider
      */
     public function sendInvite($data, Form $form)
     {
-        if (!Permission::check('ACCESS_USER_INVITATIONS')){
+        if (!Permission::check('ACCESS_USER_INVITATIONS')) {
             $form->sessionMessage(
                 _t(
                     'UserController.PERMISSION_FAILURE',
@@ -110,7 +111,6 @@ class UserController extends Controller implements PermissionProvider
             'good'
         );
         return $this->redirectBack();
-        
     }
 
 
