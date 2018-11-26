@@ -1,4 +1,14 @@
-<h3><%t UserInvitation.ACCEPTED_HEADING 'Congratulations!' %></h3>
-<p><%t UserController.ACCEPTED_BODY 'You are now registered member.' %><a href="$BaseURL//Security/login?BackURL=/">
-    <%t UserInvitation.ACCEPTED_LOGIN_LINK_TEXT "Click here to login." %></a>
-</p>
+<% if $Menu(2) || $SideBarView.Widgets %>
+	<% include SideBar %>
+<% end_if %>
+
+<div class="col-sm content-container" role="main">
+	<article>
+		<div class="content">
+            <h1><%t UserInvitation.ACCEPTED_HEADING 'Congratulations!' %></h1>
+            <p><%t UserController.ACCEPTED_BODY 'You are now a registered member.' %><a href="{$LoginLink}">
+                <%t UserInvitation.ACCEPTED_LOGIN_LINK_TEXT "Click here to login." %></a>
+            </p>
+        </div>
+	</article>
+</div>

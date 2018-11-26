@@ -28,7 +28,7 @@ use SilverStripe\Security\RandomGenerator;
 class UserInvitation extends DataObject
 {
     private static $table_name = "UserInvitation";
-    
+
     /**
      * Used to control whether a group selection on the invitation form is required.
      * @var bool

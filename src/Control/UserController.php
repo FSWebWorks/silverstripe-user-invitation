@@ -2,29 +2,27 @@
 
 namespace FSWebWorks\SilverStripe\UserInvitations\Control;
 
-use SilverStripe\Forms\Form;
-use SilverStripe\Core\Convert;
-use SilverStripe\Control\Session;
-use SilverStripe\Forms\FieldList;
-use SilverStripe\Forms\TextField;
-use SilverStripe\Security\Member;
+use FSWebWorks\SilverStripe\UserInvitations\Model\UserInvitation;
+use SilverStripe\Control\Controller;
 use SilverStripe\Control\Director;
+use SilverStripe\Control\HTTPResponse;
+use SilverStripe\Core\Config\Config;
+use SilverStripe\Core\Convert;
+use SilverStripe\Core\Injector\Injector;
+use SilverStripe\Forms\ConfirmedPasswordField;
 use SilverStripe\Forms\EmailField;
+use SilverStripe\Forms\FieldList;
+use SilverStripe\Forms\Form;
 use SilverStripe\Forms\FormAction;
 use SilverStripe\Forms\HiddenField;
-use SilverStripe\Security\Security;
-use SilverStripe\Control\Controller;
-use SilverStripe\Core\Config\Config;
 use SilverStripe\Forms\ListboxField;
-use SilverStripe\Control\HTTPRequest;
-use SilverStripe\Security\Permission;
-use SilverStripe\Control\HTTPResponse;
 use SilverStripe\Forms\RequiredFields;
-use SilverStripe\Core\Injector\Injector;
+use SilverStripe\Forms\TextField;
 use SilverStripe\ORM\ValidationException;
+use SilverStripe\Security\Member;
+use SilverStripe\Security\Permission;
 use SilverStripe\Security\PermissionProvider;
-use SilverStripe\Forms\ConfirmedPasswordField;
-use FSWebWorks\SilverStripe\UserInvitations\Model\UserInvitation;
+use SilverStripe\Security\Security;
 
 class UserController extends Controller implements PermissionProvider
 {
@@ -36,26 +34,25 @@ class UserController extends Controller implements PermissionProvider
         'InvitationForm',
         'AcceptForm',
         'expired',
-        'notfound'
+        'notfound',
     );
 
     public function providePermissions()
     {
-         return array(
+        return array(
             'ACCESS_USER_INVITATIONS' => array(
                 'name' => _t('UserController.ACCESS_PERMISSIONS', 'Allow user invitations'),
-                'category' => _t('UserController.CMS_ACCESS_CATEGORY', 'User Invitations')
-            )
+                'category' => _t('UserController.CMS_ACCESS_CATEGORY', 'User Invitations'),
+            ),
         );
     }
-
 
     public function index()
     {
         if (!Member::currentUserID()) {
             return $this->redirect('Security/login');
         } elseif (!Permission::check('ACCESS_USER_INVITATIONS')) {
-                return Security::permissionFailure();
+            return Security::permissionFailure();
         } else {
             return $this->renderWith(array('UserController', 'Page'));
         }
@@ -139,7 +136,6 @@ class UserController extends Controller implements PermissionProvider
         return $this->redirectBack();
     }
 
-
     public function accept()
     {
         if (!$hash = $this->getRequest()->param('ID')) {
@@ -152,7 +148,10 @@ class UserController extends Controller implements PermissionProvider
         } else {
             return $this->redirect($this->Link('notfound'));
         }
-        return $this->renderWith(array('UserController_accept', 'Page'), array('Invite' => $invite));
+        return $this->renderWith(
+            array('UserController_accept', 'Page'),
+            array('Invite' => $invite)
+        );
     }
 
     public function AcceptForm()
@@ -175,7 +174,7 @@ class UserController extends Controller implements PermissionProvider
             FormAction::create('saveInvite', _t('UserController.ACCEPTFORM_REGISTER', 'Register'))
         );
         $requiredFields = RequiredFields::create('FirstName', 'Surname');
-        $form = new  Form($this, 'AcceptForm', $fields, $actions, $requiredFields);
+        $form = new Form($this, 'AcceptForm', $fields, $actions, $requiredFields);
         $this->extend('updateAcceptForm', $form);
         return $form;
     }
@@ -191,7 +190,7 @@ class UserController extends Controller implements PermissionProvider
             return $this->notFoundError();
         }
         if ($form->validationResult()->isValid()) {
-            $member = Member::create(array('Email' => $invite->Email));
+            $member = Member::create(['Email' => $invite->Email]);
             $form->saveInto($member);
             try {
                 if ($member->validate()) {
@@ -223,9 +222,13 @@ class UserController extends Controller implements PermissionProvider
 
     public function success()
     {
+        $security = Injector::inst()->get(Security::class);
+
         return $this->renderWith(
-            array('UserController_success', 'Page'),
-            array('BaseURL' => Director::absoluteBaseURL())
+            ['UserController_success', 'Page'],
+            [
+                'LoginLink' => $security->Link('login'),
+            ]
         );
     }
 
