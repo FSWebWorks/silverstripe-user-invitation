@@ -1,6 +1,6 @@
 <?php
 
-namespace FSWebWorks\SilvserStripe\UserInvitations\Tests\Control;
+namespace FSWebWorks\SilverStripe\UserInvitations\Tests\Control;
 
 use SilverStripe\Forms\Form;
 use SilverStripe\Core\Convert;
@@ -8,7 +8,7 @@ use SilverStripe\Security\Member;
 use SilverStripe\Control\Director;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Dev\FunctionalTest;
-use FSWebWorks\SilvserStripe\UserInvitations\Control\UserController;
+use FSWebWorks\SilverStripe\UserInvitations\Control\UserController;
 
 class UserControllerTest extends FunctionalTest
 {

@@ -23,7 +23,7 @@ SilverStripe\Security\Member:
     Surname: Doe
     Email: john@doe.person
     Groups: =>SilverStripe\Security\Group.test2
-FSWebWorks\SilvserStripe\UserInvitations\Tests\Model\UserInvitation:
+FSWebWorks\SilverStripe\UserInvitations\Tests\Model\UserInvitation:
   joe:
     FirstName: Joe
     Email: joe@soap.person

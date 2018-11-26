@@ -1,6 +1,6 @@
 <?php
 
-namespace FSWebWorks\SilvserStripe\UserInvitations\Model;
+namespace FSWebWorks\SilverStripe\UserInvitations\Model;
 
 use DateTime;
 use SilverStripe\ORM\DataObject;
@@ -8,8 +8,9 @@ use SilverStripe\View\ArrayData;
 use SilverStripe\Security\Member;
 use SilverStripe\Control\Director;
 use SilverStripe\Control\Email\Email;
-use SilverStripe\Security\RandomGenerator;
 use SilverStripe\Security\Permission;
+use SilverStripe\ORM\FieldType\DBDatetime;
+use SilverStripe\Security\RandomGenerator;
 
 /**
  * Class UserInvitation
@@ -85,14 +86,12 @@ class UserInvitation extends DataObject
                     'Invitation from {name}',
                     array('name' => $this->InvitedBy()->FirstName)
                 )
-            )->setTemplate('UserInvitationEmail')
-            ->populateTemplate(
-                ArrayData::create(
-                    array(
-                        'Invite' => $this,
-                        'SiteURL' => Director::absoluteBaseURL(),
-                    )
-                )
+            )->setHTMLTemplate('email/UserInvitationEmail')
+            ->setData(
+                [
+                    'Invite' => $this,
+                    'SiteURL' => Director::absoluteBaseURL(),
+                ]
             )
             ->send();
     }
@@ -107,12 +106,12 @@ class UserInvitation extends DataObject
 
         if (self::get()->filter('Email', $this->Email)->first()) {
             // UserInvitation already sent
-            $valid->error(_t('UserInvitation.INVITE_ALREADY_SENT', 'This user was already sent an invite.'));
+            $valid->addError(_t('UserInvitation.INVITE_ALREADY_SENT', 'This user was already sent an invite.'));
         }
 
         if (Member::get()->filter('Email', $this->Email)->first()) {
             // Member already exists
-            $valid->error(_t(
+            $valid->addError(_t(
                 'UserInvitation.MEMBER_ALREADY_EXISTS',
                 'This person is already a member of this system.'
             ));
@@ -128,7 +127,7 @@ class UserInvitation extends DataObject
     {
         $result = false;
         $days = self::config()->get('days_to_expiry');
-        $time = DateTime::now()->Format('U');
+        $time = DBDatetime::now()->getTimestamp();
         $ago = abs($time - strtotime($this->Created));
         $rounded = round($ago / 86400);
         if ($rounded > $days) {

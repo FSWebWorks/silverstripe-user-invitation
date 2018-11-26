@@ -1,6 +1,6 @@
 <?php
 
-namespace FSWebWorks\SilvserStripe\UserInvitations\Control;
+namespace FSWebWorks\SilverStripe\UserInvitations\Control;
 
 use SilverStripe\Forms\Form;
 use SilverStripe\Core\Convert;
@@ -16,13 +16,15 @@ use SilverStripe\Security\Security;
 use SilverStripe\Control\Controller;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Forms\ListboxField;
+use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Security\Permission;
 use SilverStripe\Control\HTTPResponse;
 use SilverStripe\Forms\RequiredFields;
+use SilverStripe\Core\Injector\Injector;
 use SilverStripe\ORM\ValidationException;
 use SilverStripe\Security\PermissionProvider;
 use SilverStripe\Forms\ConfirmedPasswordField;
-use FSWebWorks\SilvserStripe\UserInvitations\Model\UserInvitation;
+use FSWebWorks\SilverStripe\UserInvitations\Model\UserInvitation;
 
 class UserController extends Controller implements PermissionProvider
 {
@@ -51,7 +53,7 @@ class UserController extends Controller implements PermissionProvider
     public function index()
     {
         if (!Member::currentUserID()) {
-            return $this->redirect('/Security/login');
+            return $this->redirect('Security/login');
         } elseif (!Permission::check('ACCESS_USER_INVITATIONS')) {
                 return Security::permissionFailure();
         } else {
@@ -66,7 +68,6 @@ class UserController extends Controller implements PermissionProvider
             TextField::create('FirstName', _t('UserController.INVITE_FIRSTNAME', 'First name:')),
             EmailField::create('Email', _t('UserController.INVITE_EMAIL', 'Invite email:')),
             ListboxField::create('Groups', _t('UserController.INVITE_GROUP', 'Add to group'), $groups)
-                ->setMultiple(true)
                 ->setRightTitle(_t('UserController.INVITE_GROUP_RIGHTTITLE', 'Ctrl + click to select multiple'))
         );
         $actions = FieldList::create(
@@ -101,7 +102,7 @@ class UserController extends Controller implements PermissionProvider
             );
             return $this->redirectBack();
         }
-        if (!$form->validate()) {
+        if (!$form->validationResult()->isValid()) {
             $form->sessionMessage(
                 _t(
                     'UserController.SENT_INVITATION_VALIDATION_FAILED',
@@ -118,6 +119,7 @@ class UserController extends Controller implements PermissionProvider
         try {
             $invite->write();
         } catch (ValidationException $e) {
+
             $form->sessionMessage(
                 $e->getMessage(),
                 'bad'
@@ -174,7 +176,6 @@ class UserController extends Controller implements PermissionProvider
         );
         $requiredFields = RequiredFields::create('FirstName', 'Surname');
         $form = new  Form($this, 'AcceptForm', $fields, $actions, $requiredFields);
-        Session::set('UserInvitation.accepted', true);
         $this->extend('updateAcceptForm', $form);
         return $form;
     }
@@ -189,7 +190,7 @@ class UserController extends Controller implements PermissionProvider
         if (!$invite = UserInvitation::get()->filter('TempHash', $data['HashID'])->first()) {
             return $this->notFoundError();
         }
-        if ($form->validate()) {
+        if ($form->validationResult()->isValid()) {
             $member = Member::create(array('Email' => $invite->Email));
             $form->saveInto($member);
             try {
@@ -257,7 +258,7 @@ class UserController extends Controller implements PermissionProvider
      */
     public function Link($action = null)
     {
-        if ($url = array_search(get_called_class(), (array)Config::inst()->get('Director', 'rules'))) {
+        if ($url = array_search(get_called_class(), (array)Config::inst()->get(Director::class, 'rules'))) {
             // Check for slashes and drop them
             if ($indexOf = stripos($url, '/')) {
                 $url = substr($url, 0, $indexOf);
