@@ -1,5 +1,14 @@
 <?php
 
+namespace FSWebWorks\SilvserStripe\UserInvitations\Tests\Control;
+
+use SilverStripe\Forms\Form;
+use SilverStripe\Core\Convert;
+use SilverStripe\Security\Member;
+use SilverStripe\Control\Director;
+use SilverStripe\Core\Config\Config;
+use SilverStripe\Dev\FunctionalTest;
+use FSWebWorks\SilvserStripe\UserInvitations\Control\UserController;
 
 class UserControllerTest extends FunctionalTest
 {
@@ -117,7 +126,7 @@ class UserControllerTest extends FunctionalTest
         $form = $this->controller->InvitationForm()->loadDataFrom($data);
         $this->assertTrue($form->validate());
 
-        Config::inst()->update('UserInvitation', 'force_require_group', true);
+        Config::inst()->update(UserInvitation::class, 'force_require_group', true);
         unset($data['Groups']);
         $form = $this->controller->InvitationForm()->loadDataFrom($data);
         $this->assertFalse($form->validate());
@@ -145,7 +154,7 @@ class UserControllerTest extends FunctionalTest
     public function testAcceptExpiredTempHash()
     {
         /** @var UserInvitation $invitation */
-        $invitation = $this->objFromFixture('UserInvitation', 'expired');
+        $invitation = $this->objFromFixture(UserInvitation::class, 'expired');
         $response = $this->get($this->controller->Link('accept/' . $invitation->TempHash));
         $this->assertEquals(302, $response->getStatusCode());
         $this->assertEquals('/user/expired', $response->getHeader('Location'));

@@ -26,6 +26,8 @@ use SilverStripe\Security\Permission;
  */
 class UserInvitation extends DataObject
 {
+    private static $table_name = "UserInvitation";
+    
     /**
      * Used to control whether a group selection on the invitation form is required.
      * @var bool
@@ -135,7 +137,7 @@ class UserInvitation extends DataObject
         return $result;
     }
 
-    public function canCreate($member = null)
+    public function canCreate($member = null, $context = null)
     {
         return Permission::check('ACCESS_USER_INVITATIONS');
     }

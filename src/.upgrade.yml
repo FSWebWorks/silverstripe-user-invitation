@@ -1,0 +1,4 @@
+mappings:
+  UserController: FSWebWorks\SilvserStripe\UserInvitations\Control\UserController
+  UserInvitation: FSWebWorks\SilvserStripe\UserInvitations\Model\UserInvitation
+

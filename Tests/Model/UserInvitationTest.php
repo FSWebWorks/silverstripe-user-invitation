@@ -1,5 +1,11 @@
 <?php
 
+namespace FSWebWorks\SilvserStripe\UserInvitations\Tests\Model;
+
+use SilverStripe\Dev\SapphireTest;
+use SilverStripe\Core\Injector\Injector;
+use FSWebWorks\SilvserStripe\UserInvitations\Model\UserInvitation;
+
 class UserInvitationTest extends SapphireTest
 {
     public static $fixture_file = 'UserInvitationTest.yml';

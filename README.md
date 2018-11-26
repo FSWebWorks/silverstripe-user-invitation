@@ -24,7 +24,7 @@ This module adds the ability to invite users to a secure website (e.g. Intranet 
 ### Force required user group assignment
 Place the following in your mysite/_config/config.yml
 ```yml
-UserInvitation:
+FSWebWorks\SilvserStripe\UserInvitations\Model\UserInvitation:
     force_require_group: true
 ```
 

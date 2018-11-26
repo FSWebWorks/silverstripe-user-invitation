@@ -1,7 +1,7 @@
-Permission:
+SilverStripe\Security\Permission:
   userInvitationPermission:
     Code: ACCESS_USER_INVITATIONS
-Group:
+SilverStripe\Security\Group:
   test1:
     Code: test1
     Title: Test group 1
@@ -11,19 +11,19 @@ Group:
   permittedGroup:
     Code: permitted-group
     Title: Group with permission to user invitation
-    Permissions: =>Permission.userInvitationPermission
-Member:
+    Permissions: =>SilverStripe\Security\Permission.userInvitationPermission
+SilverStripe\Security\Member:
   jane:
     FirstName: Jane
     Surname: Doe
     Email: jane@doe.person
-    Groups: =>Group.test1, =>Group.test2, =>Group.permittedGroup
+    Groups: =>SilverStripe\Security\Group.test1, =>SilverStripe\Security\Group.test2, =>SilverStripe\Security\Group.permittedGroup
   john:
     FirstName: John
     Surname: Doe
     Email: john@doe.person
-    Groups: =>Group.test2
-UserInvitation:
+    Groups: =>SilverStripe\Security\Group.test2
+FSWebWorks\SilvserStripe\UserInvitations\Tests\Model\UserInvitation:
   joe:
     FirstName: Joe
     Email: joe@soap.person
