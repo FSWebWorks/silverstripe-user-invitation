@@ -1,7 +1,7 @@
 {
     "name": "fswebworks/silverstripe-user-invitation",
     "description": "A SilverStripe module to handle user invitations to your secure website.",
-    "type": "silverstripe-module",
+    "type": "silverstripe-vendormodule",
     "keywords": [
         "silverstripe",
         "user invitation"
@@ -14,12 +14,12 @@
         }
     ],
     "require": {
-        "silverstripe/framework": "^3.6"
+        "silverstripe/framework": "^4.0"
     },
     "minimum-stability": "stable",
     "extra": {
         "branch-alias": {
-            "dev-master": "1.3.x-dev"
+            "dev-master": "2.0.x-dev"
         }
     }
 }

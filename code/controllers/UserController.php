@@ -1,5 +1,29 @@
 <?php
 
+namespace FSWebWorks\SilvserStripe\UserInvitations\Control;
+
+use SilverStripe\Forms\Form;
+use SilverStripe\Core\Convert;
+use SilverStripe\Control\Session;
+use SilverStripe\Forms\FieldList;
+use SilverStripe\Forms\TextField;
+use SilverStripe\Security\Member;
+use SilverStripe\Control\Director;
+use SilverStripe\Forms\EmailField;
+use SilverStripe\Forms\FormAction;
+use SilverStripe\Forms\HiddenField;
+use SilverStripe\Security\Security;
+use SilverStripe\Control\Controller;
+use SilverStripe\Core\Config\Config;
+use SilverStripe\Forms\ListboxField;
+use SilverStripe\Security\Permission;
+use SilverStripe\Control\HTTPResponse;
+use SilverStripe\Forms\RequiredFields;
+use SilverStripe\ORM\ValidationException;
+use SilverStripe\Security\PermissionProvider;
+use SilverStripe\Forms\ConfirmedPasswordField;
+use FSWebWorks\SilvserStripe\UserInvitations\Model\UserInvitation;
+
 class UserController extends Controller implements PermissionProvider
 {
 
@@ -63,7 +87,7 @@ class UserController extends Controller implements PermissionProvider
      * Records and sends the user's invitation
      * @param $data
      * @param Form $form
-     * @return bool|SS_HTTPResponse
+     * @return bool|HTTPResponse
      */
     public function sendInvite($data, Form $form)
     {

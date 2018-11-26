@@ -1,5 +1,16 @@
 <?php
 
+namespace FSWebWorks\SilvserStripe\UserInvitations\Model;
+
+use DateTime;
+use SilverStripe\ORM\DataObject;
+use SilverStripe\View\ArrayData;
+use SilverStripe\Security\Member;
+use SilverStripe\Control\Director;
+use SilverStripe\Control\Email\Email;
+use SilverStripe\Security\RandomGenerator;
+use SilverStripe\Security\Permission;
+
 /**
  * Class UserInvitation
  * @package FSWebWorks
@@ -29,7 +40,7 @@ class UserInvitation extends DataObject
     );
 
     private static $has_one = array(
-        'InvitedBy' => 'Member'
+        'InvitedBy' => Member::class
     );
 
     private static $indexes = array(
@@ -115,7 +126,7 @@ class UserInvitation extends DataObject
     {
         $result = false;
         $days = self::config()->get('days_to_expiry');
-        $time = SS_Datetime::now()->Format('U');
+        $time = DateTime::now()->Format('U');
         $ago = abs($time - strtotime($this->Created));
         $rounded = round($ago / 86400);
         if ($rounded > $days) {
