@@ -34,9 +34,7 @@ class UserControllerTest extends FunctionalTest
 
     private function logoutMember()
     {
-        if ($member = Member::currentUser()) {
-            $member->logOut();
-        }
+        Security::setCurrentUser(null);
     }
 
     /**
@@ -44,7 +42,7 @@ class UserControllerTest extends FunctionalTest
      */
     public function testCantAccessWhenLoggedOut()
     {
-        $this->logoutMember();
+        $this->logOut();
         $response = $this->get($this->controller->Link('index'));
         $this->assertFalse($response->isError());
         $this->assertEquals(302, $response->getStatusCode());
@@ -82,7 +80,8 @@ class UserControllerTest extends FunctionalTest
         $this->loginInAsSomeone('jane');
         /** @var Form $form */
         $data = $this->invitationData();
-        $response = $this->controller->sendInvite($data, $this->controller->InvitationForm()->loadDataFrom($data));
+        $response = $this->controller->sendInvite($data,
+            $this->controller->InvitationForm()->loadDataFrom($data));
         $invitation = UserInvitation::get()->filter('Email', $data['Email']);
         $this->assertCount(1, $invitation);
         /** @var UserInvitation $invitation */
@@ -95,11 +94,11 @@ class UserControllerTest extends FunctionalTest
 
     public function invitationData()
     {
-        return array(
+        return [
             'FirstName' => 'Joe',
             'Email' => 'joe@example.com',
-            'Groups' => array('test1', 'test2')
-        );
+            'Groups' => ['test1', 'test2']
+        ];
     }
 
     /**
@@ -110,7 +109,8 @@ class UserControllerTest extends FunctionalTest
         $this->loginInAsSomeone('john');
         /** @var Form $form */
         $data = $this->invitationData();
-        $response = $this->controller->sendInvite($data, $this->controller->InvitationForm()->loadDataFrom($data));
+        $response = $this->controller->sendInvite($data,
+            $this->controller->InvitationForm()->loadDataFrom($data));
         $invitation = UserInvitation::get()->filter('Email', $data['Email']);
         $this->assertCount(0, $invitation);
         $this->assertEquals(302, $response->getStatusCode());
@@ -122,15 +122,16 @@ class UserControllerTest extends FunctionalTest
     public function testGroupFieldNotRequired()
     {
         $this->loginInAsSomeone('jane');
-        $data = array(
+        $data = [
             'FirstName' => 'Joe',
             'Email' => 'joe@example.com',
-            'Groups' => array('test1', 'test2')
-        );
+            'Groups' => ['test1', 'test2']
+        ];
         $form = $this->controller->InvitationForm()->loadDataFrom($data);
         $this->assertTrue($form->validationResult()->isValid());
 
-        Config::inst()->update(UserInvitation::class, 'force_require_group', true);
+        Config::inst()->update(UserInvitation::class, 'force_require_group',
+            true);
         unset($data['Groups']);
         $form = $this->controller->InvitationForm()->loadDataFrom($data);
         $this->assertFalse($form->validationResult()->isValid());
@@ -162,7 +163,8 @@ class UserControllerTest extends FunctionalTest
         $response = $this->get($this->controller->Link('accept/' . $invitation->TempHash));
         $this->assertEquals(302, $response->getStatusCode());
         $base = Director::absoluteBaseURL();
-        $this->assertEquals('user/expired', str_replace($base, '', $response->getHeader('Location')));
+        $this->assertEquals('user/expired',
+            str_replace($base, '', $response->getHeader('Location')));
     }
 
     /**
@@ -183,36 +185,41 @@ class UserControllerTest extends FunctionalTest
      */
     public function testSaveInviteWrongHashError()
     {
-        $data = array(
+        $data = [
             'HashID' => '432'
-        );
-        $response = $this->controller->saveInvite($data, $this->controller->AcceptForm()->loadDataFrom($data));
+        ];
+        $response = $this->controller->saveInvite($data,
+            $this->controller->AcceptForm()->loadDataFrom($data));
         $this->assertEquals(302, $response->getStatusCode());
         $base = Director::absoluteBaseURL();
-        $this->assertEquals('user/notfound', str_replace($base, '', $response->getHeader('Location')));
+        $this->assertEquals('user/notfound',
+            str_replace($base, '', $response->getHeader('Location')));
     }
 
     public function testSaveInvite()
     {
         /** @var UserInvitation $invitation */
         $invitation = $this->objFromFixture(UserInvitation::class, 'joe');
-        $data = array(
+        $data = [
             'HashID' => $invitation->TempHash,
             'FirstName' => $invitation->FirstName,
             'Surname' => 'Soap',
-            'Password' => array(
+            'Password' => [
                 '_Password' => 'password',
                 '_ConfirmPassword' => 'password'
-            )
-        );
+            ]
+        ];
 
-        $response = $this->controller->saveInvite($data, $this->controller->AcceptForm()->loadDataFrom($data));
+        $response = $this->controller->saveInvite($data,
+            $this->controller->AcceptForm()->loadDataFrom($data));
         $this->assertEquals(302, $response->getStatusCode());
         $base = Director::absoluteBaseURL();
-        $this->assertEquals('user/success', str_replace($base, '', $response->getHeader('Location')));
+        $this->assertEquals('user/success',
+            str_replace($base, '', $response->getHeader('Location')));
 
         // Assert that invitation is deleted
-        $this->assertNull(UserInvitation::get()->filter('Email', $invitation->Email)->first());
+        $this->assertNull(UserInvitation::get()->filter('Email',
+            $invitation->Email)->first());
 
         /** @var Member $joe */
         $joe = Member::get()->filter('Email', $invitation->Email)->first();
@@ -220,8 +227,10 @@ class UserControllerTest extends FunctionalTest
         $this->assertTrue($joe->exists());
 
         // Assert that member belongs to the groups selected
-        $this->assertTrue($joe->inGroup($this->objFromFixture(Group::class, 'test1')));
-        $this->assertTrue($joe->inGroup($this->objFromFixture(Group::class, 'test2')));
+        $this->assertTrue($joe->inGroup($this->objFromFixture(Group::class,
+            'test1')));
+        $this->assertTrue($joe->inGroup($this->objFromFixture(Group::class,
+            'test2')));
     }
 
     /**
@@ -248,7 +257,8 @@ class UserControllerTest extends FunctionalTest
         $response = $this->get($this->controller->Link('expired'));
         $body = Convert::nl2os($response->getBody(), '');
         $this->assertContains('Invitation expired', $body);
-        $this->assertContains('Oops, you took too long to accept this invitation', $body);
+        $this->assertContains('Oops, you took too long to accept this invitation',
+            $body);
     }
 
     /**
@@ -279,7 +289,9 @@ class UserControllerTest extends FunctionalTest
     {
         $permissions = $this->controller->providePermissions();
         $this->assertArrayHasKey('ACCESS_USER_INVITATIONS', $permissions);
-        $this->assertArrayHasKey('name', $permissions['ACCESS_USER_INVITATIONS']);
-        $this->assertArrayHasKey('category', $permissions['ACCESS_USER_INVITATIONS']);
+        $this->assertArrayHasKey('name',
+            $permissions['ACCESS_USER_INVITATIONS']);
+        $this->assertArrayHasKey('category',
+            $permissions['ACCESS_USER_INVITATIONS']);
     }
 }

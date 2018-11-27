@@ -58,10 +58,10 @@ class UserInvitationTest extends SapphireTest
      */
     public function testInvitationAlreadySent()
     {
-        $invite = UserInvitation::create(array(
+        $invite = UserInvitation::create([
             'FirstName' => 'Joe',
             'Email' => 'joe@soap.person'
-        ));
+        ]);
         $result = $invite->validate();
         $this->assertFalse($result->isValid());
         $this->assertEquals('This user was already sent an invite.', $result->getMessages()[0]['message']);
@@ -72,10 +72,10 @@ class UserInvitationTest extends SapphireTest
      */
     public function testMemberAlreadyExists()
     {
-        $invite = UserInvitation::create(array(
+        $invite = UserInvitation::create([
             'FirstName' => 'Jane',
             'Email' => 'jane@doe.clone'
-        ));
+        ]);
         $result = $invite->validate();
         $this->assertFalse($result->isValid());
         $this->assertEquals('This person is already a member of this system.', $result->getMessages()[0]['message']);
@@ -87,10 +87,10 @@ class UserInvitationTest extends SapphireTest
     public function testOnBeforeWrite()
     {
         $this->logInWithPermission('ADMIN');
-        $invite = UserInvitation::create(array(
+        $invite = UserInvitation::create([
             'FirstName' => 'Dane',
             'Email' => 'dane@example.com'
-        ));
+        ]);
         $invite->write();
         $this->assertNotNull($invite->TempHash);
         $this->assertNotNull($invite->InvitedByID);

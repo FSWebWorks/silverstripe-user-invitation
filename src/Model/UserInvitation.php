@@ -2,14 +2,12 @@
 
 namespace FSWebWorks\SilverStripe\UserInvitations\Model;
 
-use DateTime;
-use SilverStripe\ORM\DataObject;
-use SilverStripe\View\ArrayData;
-use SilverStripe\Security\Member;
 use SilverStripe\Control\Director;
 use SilverStripe\Control\Email\Email;
-use SilverStripe\Security\Permission;
+use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\FieldType\DBDatetime;
+use SilverStripe\Security\Member;
+use SilverStripe\Security\Permission;
 use SilverStripe\Security\RandomGenerator;
 
 /**
@@ -35,21 +33,21 @@ class UserInvitation extends DataObject
      */
     private static $force_require_group = false;
 
-    private static $db = array(
+    private static $db = [
         'FirstName' => 'Varchar',
         'Email' => 'Varchar(254)',
         'TempHash' => 'Varchar',
         'Groups' => 'Text'
-    );
+    ];
 
-    private static $has_one = array(
+    private static $has_one = [
         'InvitedBy' => Member::class
-    );
+    ];
 
-    private static $indexes = array(
+    private static $indexes = [
         'Email' => true,
         'TempHash' => true
-    );
+    ];
 
     /**
      * Removes the hash field from the list.
@@ -84,7 +82,7 @@ class UserInvitation extends DataObject
                 _t(
                     'UserInvation.EMAIL_SUBJECT',
                     'Invitation from {name}',
-                    array('name' => $this->InvitedBy()->FirstName)
+                    ['name' => $this->InvitedBy()->FirstName]
                 )
             )->setHTMLTemplate('email/UserInvitationEmail')
             ->setData(
