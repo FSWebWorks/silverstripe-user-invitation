@@ -1,16 +1,16 @@
-Member:
+SilverStripe\Security\Member:
   jane:
     FirstName: Jane
     Surname: Doe
-    Email: jane@doe.person
-UserInvitation:
+    Email: jane@doe.clone
+FSWebWorks\SilverStripe\UserInvitations\Model\UserInvitation:
   joe:
     FirstName: Joe
     Email: joe@soap.person
-    InvitedBy: Member.jane
+    InvitedBy: =>SilverStripe\Security\Member.jane
   expired:
     FirstName: Slow
     Email: slow@joe.person
-    InvitedBy: Member.jane
+    InvitedBy: =>SilverStripe\Security\Member.jane
     TempHash: kljlwer23432xvdsf
     Created: 2016-01-01 11:00:00

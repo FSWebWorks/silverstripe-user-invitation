@@ -1,5 +1,5 @@
 ---
 Name: userinvitationconfig
 ---
-UserInvitation:
+FSWebWorks\SilverStripe\UserInvitations\Model\UserInvitation:
   days_to_expiry: 2 # Days until an invitation expires

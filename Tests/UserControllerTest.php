@@ -1,5 +1,18 @@
 <?php
 
+namespace FSWebWorks\SilverStripe\UserInvitations\Tests;
+
+use SilverStripe\Forms\Form;
+use SilverStripe\Core\Convert;
+use SilverStripe\Security\Group;
+use SilverStripe\Security\Member;
+use SilverStripe\Control\Director;
+use SilverStripe\Security\Security;
+use SilverStripe\Core\Config\Config;
+use SilverStripe\Dev\FunctionalTest;
+use SilverStripe\Core\Injector\Injector;
+use FSWebWorks\SilverStripe\UserInvitations\Model\UserInvitation;
+use FSWebWorks\SilverStripe\UserInvitations\Control\UserController;
 
 class UserControllerTest extends FunctionalTest
 {
@@ -55,7 +68,7 @@ class UserControllerTest extends FunctionalTest
     public function testInvitationForm()
     {
         $form = $this->controller->InvitationForm();
-        $this->assertInstanceOf('Form', $form);
+        $this->assertInstanceOf(Form::class, $form);
         $this->assertNotNull($form->Fields()->fieldByName('FirstName'));
         $this->assertNotNull($form->Fields()->fieldByName('Email'));
         $this->assertNotNull($form->Fields()->fieldByName('Groups'));
@@ -76,7 +89,7 @@ class UserControllerTest extends FunctionalTest
         $joe = $invitation->first();
         $this->assertEquals('Joe', $joe->FirstName);
         $this->assertEquals('joe@example.com', $joe->Email);
-        $this->assertEquals('test1,test2', $joe->Groups);
+        $this->assertEquals("[\"test1\",\"test2\"]", $joe->Groups);
         $this->assertEquals(302, $response->getStatusCode());
     }
 
@@ -115,18 +128,18 @@ class UserControllerTest extends FunctionalTest
             'Groups' => array('test1', 'test2')
         );
         $form = $this->controller->InvitationForm()->loadDataFrom($data);
-        $this->assertTrue($form->validate());
+        $this->assertTrue($form->validationResult()->isValid());
 
-        Config::inst()->update('UserInvitation', 'force_require_group', true);
+        Config::inst()->update(UserInvitation::class, 'force_require_group', true);
         unset($data['Groups']);
         $form = $this->controller->InvitationForm()->loadDataFrom($data);
-        $this->assertFalse($form->validate());
+        $this->assertFalse($form->validationResult()->isValid());
     }
 
     private function loginInAsSomeone($name)
     {
         /** @var Member $member */
-        $member = $this->objFromFixture('Member', $name);
+        $member = $this->objFromFixture(Member::class, $name);
         $this->logInAs($member);
     }
 
@@ -145,10 +158,11 @@ class UserControllerTest extends FunctionalTest
     public function testAcceptExpiredTempHash()
     {
         /** @var UserInvitation $invitation */
-        $invitation = $this->objFromFixture('UserInvitation', 'expired');
+        $invitation = $this->objFromFixture(UserInvitation::class, 'expired');
         $response = $this->get($this->controller->Link('accept/' . $invitation->TempHash));
         $this->assertEquals(302, $response->getStatusCode());
-        $this->assertEquals('/user/expired', $response->getHeader('Location'));
+        $base = Director::absoluteBaseURL();
+        $this->assertEquals('user/expired', str_replace($base, '', $response->getHeader('Location')));
     }
 
     /**
@@ -157,7 +171,7 @@ class UserControllerTest extends FunctionalTest
     public function testAcceptForm()
     {
         $form = $this->controller->AcceptForm();
-        $this->assertInstanceOf('Form', $form);
+        $this->assertInstanceOf(Form::class, $form);
         $this->assertNotNull($form->Fields()->fieldByName('FirstName'));
         $this->assertNull($form->Fields()->fieldByName('Email'));
         $this->assertNotNull($form->Fields()->fieldByName('HashID'));
@@ -174,13 +188,14 @@ class UserControllerTest extends FunctionalTest
         );
         $response = $this->controller->saveInvite($data, $this->controller->AcceptForm()->loadDataFrom($data));
         $this->assertEquals(302, $response->getStatusCode());
-        $this->assertEquals('/user/notfound', $response->getHeader('Location'));
+        $base = Director::absoluteBaseURL();
+        $this->assertEquals('user/notfound', str_replace($base, '', $response->getHeader('Location')));
     }
 
     public function testSaveInvite()
     {
         /** @var UserInvitation $invitation */
-        $invitation = $this->objFromFixture('UserInvitation', 'joe');
+        $invitation = $this->objFromFixture(UserInvitation::class, 'joe');
         $data = array(
             'HashID' => $invitation->TempHash,
             'FirstName' => $invitation->FirstName,
@@ -193,7 +208,8 @@ class UserControllerTest extends FunctionalTest
 
         $response = $this->controller->saveInvite($data, $this->controller->AcceptForm()->loadDataFrom($data));
         $this->assertEquals(302, $response->getStatusCode());
-        $this->assertEquals('/user/success', $response->getHeader('Location'));
+        $base = Director::absoluteBaseURL();
+        $this->assertEquals('user/success', str_replace($base, '', $response->getHeader('Location')));
 
         // Assert that invitation is deleted
         $this->assertNull(UserInvitation::get()->filter('Email', $invitation->Email)->first());
@@ -204,8 +220,8 @@ class UserControllerTest extends FunctionalTest
         $this->assertTrue($joe->exists());
 
         // Assert that member belongs to the groups selected
-        $this->assertTrue($joe->inGroup($this->objFromFixture('Group', 'test1')));
-        $this->assertTrue($joe->inGroup($this->objFromFixture('Group', 'test2')));
+        $this->assertTrue($joe->inGroup($this->objFromFixture(Group::class, 'test1')));
+        $this->assertTrue($joe->inGroup($this->objFromFixture(Group::class, 'test2')));
     }
 
     /**
@@ -217,9 +233,10 @@ class UserControllerTest extends FunctionalTest
         $response = $this->get($this->controller->Link('success'));
         $body = Convert::nl2os($response->getBody(), '');
         $this->assertContains('Congratulations!', $body);
-        $this->assertContains('You are now registered member', $body);
-        $baseURL = Director::absoluteBaseURL();
-        $this->assertContains("<a href=\"{$baseURL}//Security/login?BackURL=/\">", $body);
+        $this->assertContains('You are now a registered member', $body);
+        $security = Injector::inst()->get(Security::class);
+        $link = $security->Link('login');
+        $this->assertContains("<a href=\"{$link}\">", $body);
     }
 
     /**

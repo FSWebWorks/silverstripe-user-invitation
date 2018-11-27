@@ -1,5 +1,17 @@
 <?php
 
+namespace FSWebWorks\SilverStripe\UserInvitations\Model;
+
+use DateTime;
+use SilverStripe\ORM\DataObject;
+use SilverStripe\View\ArrayData;
+use SilverStripe\Security\Member;
+use SilverStripe\Control\Director;
+use SilverStripe\Control\Email\Email;
+use SilverStripe\Security\Permission;
+use SilverStripe\ORM\FieldType\DBDatetime;
+use SilverStripe\Security\RandomGenerator;
+
 /**
  * Class UserInvitation
  * @package FSWebWorks
@@ -15,6 +27,8 @@
  */
 class UserInvitation extends DataObject
 {
+    private static $table_name = "UserInvitation";
+
     /**
      * Used to control whether a group selection on the invitation form is required.
      * @var bool
@@ -29,7 +43,7 @@ class UserInvitation extends DataObject
     );
 
     private static $has_one = array(
-        'InvitedBy' => 'Member'
+        'InvitedBy' => Member::class
     );
 
     private static $indexes = array(
@@ -63,7 +77,7 @@ class UserInvitation extends DataObject
      */
     public function sendInvitation()
     {
-        return Email::create()
+        $email = Email::create()
             ->setFrom(Email::config()->get('admin_email'))
             ->setTo($this->Email)
             ->setSubject(
@@ -72,16 +86,17 @@ class UserInvitation extends DataObject
                     'Invitation from {name}',
                     array('name' => $this->InvitedBy()->FirstName)
                 )
-            )->setTemplate('UserInvitationEmail')
-            ->populateTemplate(
-                ArrayData::create(
-                    array(
-                        'Invite' => $this,
-                        'SiteURL' => Director::absoluteBaseURL(),
-                    )
-                )
-            )
-            ->send();
+            )->setHTMLTemplate('email/UserInvitationEmail')
+            ->setData(
+                [
+                    'Invite' => $this,
+                    'SiteURL' => Director::absoluteBaseURL(),
+                ]
+            );
+
+        $email->send();
+
+        return $email;
     }
 
     /**
@@ -94,12 +109,12 @@ class UserInvitation extends DataObject
 
         if (self::get()->filter('Email', $this->Email)->first()) {
             // UserInvitation already sent
-            $valid->error(_t('UserInvitation.INVITE_ALREADY_SENT', 'This user was already sent an invite.'));
+            $valid->addError(_t('UserInvitation.INVITE_ALREADY_SENT', 'This user was already sent an invite.'));
         }
 
         if (Member::get()->filter('Email', $this->Email)->first()) {
             // Member already exists
-            $valid->error(_t(
+            $valid->addError(_t(
                 'UserInvitation.MEMBER_ALREADY_EXISTS',
                 'This person is already a member of this system.'
             ));
@@ -115,7 +130,7 @@ class UserInvitation extends DataObject
     {
         $result = false;
         $days = self::config()->get('days_to_expiry');
-        $time = SS_Datetime::now()->Format('U');
+        $time = DBDatetime::now()->getTimestamp();
         $ago = abs($time - strtotime($this->Created));
         $rounded = round($ago / 86400);
         if ($rounded > $days) {
@@ -124,7 +139,7 @@ class UserInvitation extends DataObject
         return $result;
     }
 
-    public function canCreate($member = null)
+    public function canCreate($member = null, $context = null)
     {
         return Permission::check('ACCESS_USER_INVITATIONS');
     }
