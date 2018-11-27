@@ -23,16 +23,16 @@ SilverStripe\Security\Member:
     Surname: Doe
     Email: john@doe.person
     Groups: =>SilverStripe\Security\Group.test2
-FSWebWorks\SilverStripe\UserInvitations\Tests\Model\UserInvitation:
+FSWebWorks\SilverStripe\UserInvitations\Model\UserInvitation:
   joe:
     FirstName: Joe
     Email: joe@soap.person
-    InvitedBy: Member.jane
+    InvitedBy: =>SilverStripe\Security\Member.jane
     TempHash: 234jlkjf798723lj4
     Groups: 'test1,test2'
   expired:
     FirstName: Slow
     Email: slow@joe.person
-    InvitedBy: Member.jane
+    InvitedBy: =>SilverStripe\Security\Member.jane
     TempHash: kljlwer23432xvdsf
     Created: 2016-01-01 11:00:00

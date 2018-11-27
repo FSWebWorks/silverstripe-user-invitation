@@ -1,6 +1,6 @@
 <?php
 
-namespace FSWebWorks\SilverStripe\UserInvitations\Tests\Model;
+namespace FSWebWorks\SilverStripe\UserInvitations\Tests;
 
 use SilverStripe\Dev\SapphireTest;
 use SilverStripe\Core\Injector\Injector;
@@ -20,14 +20,14 @@ class UserInvitationTest extends SapphireTest
      */
     public function testSendInvitation()
     {
-        Injector::inst()->registerService(new EmailTest_Mailer(), 'Mailer');
         /** @var UserInvitation $joe */
-        $joe = $this->objFromFixture('UserInvitation', 'joe');
+        $joe = $this->objFromFixture(UserInvitation::class, 'joe');
 
         $sent = $joe->sendInvitation();
-        $this->assertEquals($joe->Email, $sent['to']);
-        $this->assertEquals("Invitation from {$joe->InvitedBy()->FirstName}", $sent['subject']);
-        $this->assertContains('Click here to accept this invitation', $sent['content']);
+        $keys = array_keys($sent->getTo());
+        $this->assertEquals($joe->Email, $keys[0]);
+        $this->assertEquals("Invitation from {$joe->InvitedBy()->FirstName}", $sent->getSubject());
+        $this->assertContains('Click here to accept this invitation', $sent->getBody());
     }
 
     /**
@@ -36,7 +36,7 @@ class UserInvitationTest extends SapphireTest
     public function testIsExpired()
     {
         /** @var UserInvitation $expired */
-        $expired = $this->objFromFixture('UserInvitation', 'expired');
+        $expired = $this->objFromFixture(UserInvitation::class, 'expired');
         $this->assertTrue($expired->isExpired());
     }
 
@@ -46,7 +46,7 @@ class UserInvitationTest extends SapphireTest
     public function testGetCMSFields()
     {
         /** @var UserInvitation $joe */
-        $joe = $this->objFromFixture('UserInvitation', 'joe');
+        $joe = $this->objFromFixture(UserInvitation::class, 'joe');
         $fields = $joe->getCMSFields();
         $this->assertNull($fields->dataFieldByName('TempHash'));
         $this->assertNotNull($fields->dataFieldByName('FirstName'));
@@ -63,8 +63,8 @@ class UserInvitationTest extends SapphireTest
             'Email' => 'joe@soap.person'
         ));
         $result = $invite->validate();
-        $this->assertFalse($result->valid());
-        $this->assertEquals('This user was already sent an invite.', $result->message());
+        $this->assertFalse($result->isValid());
+        $this->assertEquals('This user was already sent an invite.', $result->getMessages()[0]['message']);
     }
 
     /**
@@ -74,11 +74,11 @@ class UserInvitationTest extends SapphireTest
     {
         $invite = UserInvitation::create(array(
             'FirstName' => 'Jane',
-            'Email' => 'jane@doe.person'
+            'Email' => 'jane@doe.clone'
         ));
         $result = $invite->validate();
-        $this->assertFalse($result->valid());
-        $this->assertEquals('This person is already a member of this system.', $result->message());
+        $this->assertFalse($result->isValid());
+        $this->assertEquals('This person is already a member of this system.', $result->getMessages()[0]['message']);
     }
 
     /**

@@ -77,7 +77,7 @@ class UserInvitation extends DataObject
      */
     public function sendInvitation()
     {
-        return Email::create()
+        $email = Email::create()
             ->setFrom(Email::config()->get('admin_email'))
             ->setTo($this->Email)
             ->setSubject(
@@ -92,8 +92,11 @@ class UserInvitation extends DataObject
                     'Invite' => $this,
                     'SiteURL' => Director::absoluteBaseURL(),
                 ]
-            )
-            ->send();
+            );
+
+        $email->send();
+
+        return $email;
     }
 
     /**
