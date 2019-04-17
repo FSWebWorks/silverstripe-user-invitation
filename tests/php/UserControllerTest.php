@@ -4,6 +4,7 @@ namespace FSWebWorks\SilverStripe\UserInvitations\Tests;
 
 use SilverStripe\Forms\Form;
 use SilverStripe\Core\Convert;
+use SilverStripe\ORM\FieldType\DBHTMLText;
 use SilverStripe\Security\Group;
 use SilverStripe\Security\Member;
 use SilverStripe\Control\Director;
@@ -20,7 +21,7 @@ class UserControllerTest extends FunctionalTest
     public static $fixture_file = 'UserControllerTest.yml';
 
     /**
-     * @var UserController
+     * @var UserController $controller
      */
     private $controller;
 
@@ -47,6 +48,17 @@ class UserControllerTest extends FunctionalTest
         $this->assertFalse($response->isError());
         $this->assertEquals(302, $response->getStatusCode());
         $this->autoFollowRedirection = true;
+    }
+
+    /**
+     * Tests that a user can access other actions
+     */
+    public function testCanAccessWhenLoggedOut()
+    {
+        $this->logOut();
+        $response = $this->get($this->controller->Link('accept'));
+        $this->assertFalse($response->isError());
+        $this->assertEquals(200, $response->getStatusCode());
     }
 
     /**
@@ -293,5 +305,43 @@ class UserControllerTest extends FunctionalTest
             $permissions['ACCESS_USER_INVITATIONS']);
         $this->assertArrayHasKey('category',
             $permissions['ACCESS_USER_INVITATIONS']);
+    }
+
+    /**
+     *
+     */
+    public function testRenderWithLayout()
+    {
+        $render = $this->controller->renderWithLayout([]);
+        $this->assertInstanceOf(DBHTMLText::class, $render);
+    }
+
+    /**
+     *
+     */
+    public function testGetLayoutTemplates()
+    {
+        // test string to template array
+        $templates = $this->controller->getLayoutTemplates('NewPage');
+        $this->assertEquals([
+            'type' => 'Layout',
+            'NewPage',
+            'Page',
+        ], $templates);
+
+        // test empty array to template array
+        $templates = $this->controller->getLayoutTemplates([]);
+        $this->assertEquals([
+            'type' => 'Layout',
+            'Page',
+        ], $templates);
+
+        // test empty array to template array
+        $templates = $this->controller->getLayoutTemplates(['NewPage']);
+        $this->assertEquals([
+            'type' => 'Layout',
+            'NewPage',
+            'Page',
+        ], $templates);
     }
 }

@@ -385,13 +385,13 @@ class UserController extends Controller implements PermissionProvider
      * @param array|string $templates
      * @return array
      */
-    private function getLayoutTemplates($templates)
+    public function getLayoutTemplates($templates)
     {
         if (is_string($templates)) {
             $templates = [$templates];
         }
         // Always include page template as fallback
-        if ($templates[count($templates) - 1] !== \Page::class) {
+        if (count($templates) == 0 || $templates[count($templates) - 1] !== \Page::class) {
             array_push($templates, \Page::class);
         }
         // otherwise it renders funny
