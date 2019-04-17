@@ -18,11 +18,16 @@ use SilverStripe\Forms\HiddenField;
 use SilverStripe\Forms\ListboxField;
 use SilverStripe\Forms\RequiredFields;
 use SilverStripe\Forms\TextField;
+use SilverStripe\ORM\FieldType\DBField;
+use SilverStripe\ORM\FieldType\DBHTMLText;
 use SilverStripe\ORM\ValidationException;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\Permission;
 use SilverStripe\Security\PermissionProvider;
 use SilverStripe\Security\Security;
+use SilverStripe\View\ArrayData;
+use SilverStripe\View\SSViewer;
+use SilverStripe\View\ThemeResourceLoader;
 
 class UserController extends Controller implements PermissionProvider
 {
@@ -57,7 +62,9 @@ class UserController extends Controller implements PermissionProvider
     {
         parent::init();
 
-        if (!Security::getCurrentUser()) {
+        $action = $this->getRequest()->param('Action');
+
+        if (!Security::getCurrentUser() && ($action === 'index' || $action === 'InvitationForm')) {
             $security = Injector::inst()->get(Security::class);
             $link = $security->Link('login');
             return $this->redirect(Controller::join_links(
@@ -72,7 +79,7 @@ class UserController extends Controller implements PermissionProvider
         if (!Permission::check('ACCESS_USER_INVITATIONS')) {
             return Security::permissionFailure();
         } else {
-            return $this->renderWith(['Layout/UserController', 'Page']);
+            return $this->renderWithLayout(static::class);
         }
     }
 
@@ -193,10 +200,12 @@ class UserController extends Controller implements PermissionProvider
         } else {
             return $this->redirect($this->Link('notfound'));
         }
-        return $this->renderWith(
-            ['Layout/UserController_accept', 'Page'],
-            ['Invite' => $invite]
-        );
+        return $this->renderWithLayout([
+            static::class . '_accept',
+            static::class
+        ],[
+            'Invite' => $invite
+        ]);
     }
 
     public function AcceptForm()
@@ -284,8 +293,11 @@ class UserController extends Controller implements PermissionProvider
     {
         $security = Injector::inst()->get(Security::class);
 
-        return $this->renderWith(
-            ['Layout/UserController_success', 'Page'],
+        return $this->renderWithLayout(
+            [
+                static::class . '_success',
+                static::class,
+            ],
             [
                 'LoginLink' => $security->Link('login'),
             ]
@@ -294,12 +306,18 @@ class UserController extends Controller implements PermissionProvider
 
     public function expired()
     {
-        return $this->renderWith(['Layout/UserController_expired', 'Page']);
+        return $this->renderWithLayout([
+            static::class . '_expired',
+            static::class,
+        ]);
     }
 
     public function notfound()
     {
-        return $this->renderWith(['Layout/UserController_notfound', 'Page']);
+        return $this->renderWithLayout([
+            static::class . '_notfound',
+            static::class,
+        ]);
     }
 
     private function forbiddenError()
@@ -334,5 +352,52 @@ class UserController extends Controller implements PermissionProvider
             }
             return $this->join_links($url, $action);
         }
+    }
+
+    /**
+     * @param array|string $templates
+     * @param array|\SilverStripe\View\ArrayData $customFields
+     * @return \SilverStripe\ORM\FieldType\DBHTMLText
+     */
+    public function renderWithLayout($templates, $customFields = [])
+    {
+        $templates = $this->getLayoutTemplates($templates);
+        $mainTemplates = [\Page::class];
+        $this->extend('updateMainTemplates', $mainTemplates);
+        $this->extend('updateLayoutFields', $customFields);
+
+        $viewer = new SSViewer($this->getViewerTemplates());
+        $viewer->setTemplateFile(
+            'main',
+            ThemeResourceLoader::inst()->findTemplate($mainTemplates)
+        );
+        $viewer->setTemplateFile(
+            'Layout',
+            ThemeResourceLoader::inst()->findTemplate($templates)
+        );
+
+        //print_r($viewer->templates());
+        return $viewer->process(
+            $this->customise($customFields)
+        );
+    }
+
+    /**
+     * @param array|string $templates
+     * @return array
+     */
+    private function getLayoutTemplates($templates)
+    {
+        if (is_string($templates)) {
+            $templates = [$templates];
+        }
+        // Always include page template as fallback
+        if ($templates[count($templates) - 1] !== \Page::class) {
+            array_push($templates, \Page::class);
+        }
+        // otherwise it renders funny
+        $templates = ['type' => 'Layout'] + $templates;
+        $this->extend('updateLayoutTemplates', $templates);
+        return $templates;
     }
 }
