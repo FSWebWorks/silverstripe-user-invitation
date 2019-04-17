@@ -364,7 +364,6 @@ class UserController extends Controller implements PermissionProvider
         $templates = $this->getLayoutTemplates($templates);
         $mainTemplates = [\Page::class];
         $this->extend('updateMainTemplates', $mainTemplates);
-        $this->extend('updateLayoutFields', $customFields);
 
         $viewer = new SSViewer($this->getViewerTemplates());
         $viewer->setTemplateFile(
@@ -397,7 +396,6 @@ class UserController extends Controller implements PermissionProvider
         }
         // otherwise it renders funny
         $templates = ['type' => 'Layout'] + $templates;
-        $this->extend('updateLayoutTemplates', $templates);
         return $templates;
     }
 }
