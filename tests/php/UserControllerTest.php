@@ -2,18 +2,18 @@
 
 namespace FSWebWorks\SilverStripe\UserInvitations\Tests;
 
-use SilverStripe\Forms\Form;
+use FSWebWorks\SilverStripe\UserInvitations\Control\UserController;
+use FSWebWorks\SilverStripe\UserInvitations\Model\UserInvitation;
+use SilverStripe\Control\Director;
+use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Convert;
+use SilverStripe\Core\Injector\Injector;
+use SilverStripe\Dev\FunctionalTest;
+use SilverStripe\Forms\Form;
 use SilverStripe\ORM\FieldType\DBHTMLText;
 use SilverStripe\Security\Group;
 use SilverStripe\Security\Member;
-use SilverStripe\Control\Director;
 use SilverStripe\Security\Security;
-use SilverStripe\Core\Config\Config;
-use SilverStripe\Dev\FunctionalTest;
-use SilverStripe\Core\Injector\Injector;
-use FSWebWorks\SilverStripe\UserInvitations\Model\UserInvitation;
-use FSWebWorks\SilverStripe\UserInvitations\Control\UserController;
 
 class UserControllerTest extends FunctionalTest
 {

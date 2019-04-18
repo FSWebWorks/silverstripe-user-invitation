@@ -2,9 +2,8 @@
 
 namespace FSWebWorks\SilverStripe\UserInvitations\Tests;
 
-use SilverStripe\Dev\SapphireTest;
-use SilverStripe\Core\Injector\Injector;
 use FSWebWorks\SilverStripe\UserInvitations\Model\UserInvitation;
+use SilverStripe\Dev\SapphireTest;
 
 class UserInvitationTest extends SapphireTest
 {

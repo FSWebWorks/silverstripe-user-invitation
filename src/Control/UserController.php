@@ -18,14 +18,11 @@ use SilverStripe\Forms\HiddenField;
 use SilverStripe\Forms\ListboxField;
 use SilverStripe\Forms\RequiredFields;
 use SilverStripe\Forms\TextField;
-use SilverStripe\ORM\FieldType\DBField;
-use SilverStripe\ORM\FieldType\DBHTMLText;
 use SilverStripe\ORM\ValidationException;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\Permission;
 use SilverStripe\Security\PermissionProvider;
 use SilverStripe\Security\Security;
-use SilverStripe\View\ArrayData;
 use SilverStripe\View\SSViewer;
 use SilverStripe\View\ThemeResourceLoader;
 
@@ -203,7 +200,7 @@ class UserController extends Controller implements PermissionProvider
         return $this->renderWithLayout([
             static::class . '_accept',
             static::class
-        ],[
+        ], [
             'Invite' => $invite
         ]);
     }
@@ -337,7 +334,7 @@ class UserController extends Controller implements PermissionProvider
      * Ensure that links for this controller use the customised route.
      * Searches through the rules set up for the class and returns the first route.
      *
-     * @param  string $action
+     * @param string $action
      * @return string
      */
     public function Link($action = null)
