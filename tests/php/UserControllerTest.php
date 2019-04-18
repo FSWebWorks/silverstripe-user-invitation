@@ -92,8 +92,10 @@ class UserControllerTest extends FunctionalTest
         $this->loginInAsSomeone('jane');
         /** @var Form $form */
         $data = $this->invitationData();
-        $response = $this->controller->sendInvite($data,
-            $this->controller->InvitationForm()->loadDataFrom($data));
+        $response = $this->controller->sendInvite(
+            $data,
+            $this->controller->InvitationForm()->loadDataFrom($data)
+        );
         $invitation = UserInvitation::get()->filter('Email', $data['Email']);
         $this->assertCount(1, $invitation);
         /** @var UserInvitation $invitation */
@@ -121,8 +123,10 @@ class UserControllerTest extends FunctionalTest
         $this->loginInAsSomeone('john');
         /** @var Form $form */
         $data = $this->invitationData();
-        $response = $this->controller->sendInvite($data,
-            $this->controller->InvitationForm()->loadDataFrom($data));
+        $response = $this->controller->sendInvite(
+            $data,
+            $this->controller->InvitationForm()->loadDataFrom($data)
+        );
         $invitation = UserInvitation::get()->filter('Email', $data['Email']);
         $this->assertCount(0, $invitation);
         $this->assertEquals(302, $response->getStatusCode());
@@ -205,12 +209,16 @@ class UserControllerTest extends FunctionalTest
         $data = [
             'HashID' => '432'
         ];
-        $response = $this->controller->saveInvite($data,
-            $this->controller->AcceptForm()->loadDataFrom($data));
+        $response = $this->controller->saveInvite(
+            $data,
+            $this->controller->AcceptForm()->loadDataFrom($data)
+        );
         $this->assertEquals(302, $response->getStatusCode());
         $base = Director::absoluteBaseURL();
-        $this->assertEquals('user/notfound',
-            str_replace($base, '', $response->getHeader('Location')));
+        $this->assertEquals(
+            'user/notfound',
+            str_replace($base, '', $response->getHeader('Location'))
+        );
     }
 
     public function testSaveInvite()
@@ -227,12 +235,16 @@ class UserControllerTest extends FunctionalTest
             ]
         ];
 
-        $response = $this->controller->saveInvite($data,
-            $this->controller->AcceptForm()->loadDataFrom($data));
+        $response = $this->controller->saveInvite(
+            $data,
+            $this->controller->AcceptForm()->loadDataFrom($data)
+        );
         $this->assertEquals(302, $response->getStatusCode());
         $base = Director::absoluteBaseURL();
-        $this->assertEquals('user/success',
-            str_replace($base, '', $response->getHeader('Location')));
+        $this->assertEquals(
+            'user/success',
+            str_replace($base, '', $response->getHeader('Location'))
+        );
 
         // Assert that invitation is deleted
         $this->assertNull(UserInvitation::get()->filter(
