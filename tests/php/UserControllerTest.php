@@ -142,8 +142,11 @@ class UserControllerTest extends FunctionalTest
         $form = $this->controller->InvitationForm()->loadDataFrom($data);
         $this->assertTrue($form->validationResult()->isValid());
 
-        Config::inst()->update(UserInvitation::class, 'force_require_group',
-            true);
+        Config::inst()->update(
+            UserInvitation::class,
+            'force_require_group',
+            true
+        );
         unset($data['Groups']);
         $form = $this->controller->InvitationForm()->loadDataFrom($data);
         $this->assertFalse($form->validationResult()->isValid());
@@ -175,8 +178,10 @@ class UserControllerTest extends FunctionalTest
         $response = $this->get($this->controller->Link('accept/' . $invitation->TempHash));
         $this->assertEquals(302, $response->getStatusCode());
         $base = Director::absoluteBaseURL();
-        $this->assertEquals('user/expired',
-            str_replace($base, '', $response->getHeader('Location')));
+        $this->assertEquals(
+            'user/expired',
+            str_replace($base, '', $response->getHeader('Location'))
+        );
     }
 
     /**
@@ -230,8 +235,10 @@ class UserControllerTest extends FunctionalTest
             str_replace($base, '', $response->getHeader('Location')));
 
         // Assert that invitation is deleted
-        $this->assertNull(UserInvitation::get()->filter('Email',
-            $invitation->Email)->first());
+        $this->assertNull(UserInvitation::get()->filter(
+            'Email',
+            $invitation->Email
+        )->first());
 
         /** @var Member $joe */
         $joe = Member::get()->filter('Email', $invitation->Email)->first();
@@ -239,10 +246,14 @@ class UserControllerTest extends FunctionalTest
         $this->assertTrue($joe->exists());
 
         // Assert that member belongs to the groups selected
-        $this->assertTrue($joe->inGroup($this->objFromFixture(Group::class,
-            'test1')));
-        $this->assertTrue($joe->inGroup($this->objFromFixture(Group::class,
-            'test2')));
+        $this->assertTrue($joe->inGroup($this->objFromFixture(
+            Group::class,
+            'test1'
+        )));
+        $this->assertTrue($joe->inGroup($this->objFromFixture(
+            Group::class,
+            'test2'
+        )));
     }
 
     /**
@@ -269,8 +280,10 @@ class UserControllerTest extends FunctionalTest
         $response = $this->get($this->controller->Link('expired'));
         $body = Convert::nl2os($response->getBody(), '');
         $this->assertContains('Invitation expired', $body);
-        $this->assertContains('Oops, you took too long to accept this invitation',
-            $body);
+        $this->assertContains(
+            'Oops, you took too long to accept this invitation',
+            $body
+        );
     }
 
     /**
@@ -301,10 +314,14 @@ class UserControllerTest extends FunctionalTest
     {
         $permissions = $this->controller->providePermissions();
         $this->assertArrayHasKey('ACCESS_USER_INVITATIONS', $permissions);
-        $this->assertArrayHasKey('name',
-            $permissions['ACCESS_USER_INVITATIONS']);
-        $this->assertArrayHasKey('category',
-            $permissions['ACCESS_USER_INVITATIONS']);
+        $this->assertArrayHasKey(
+            'name',
+            $permissions['ACCESS_USER_INVITATIONS']
+        );
+        $this->assertArrayHasKey(
+            'category',
+            $permissions['ACCESS_USER_INVITATIONS']
+        );
     }
 
     /**

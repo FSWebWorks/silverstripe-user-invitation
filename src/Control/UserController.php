@@ -388,8 +388,8 @@ class UserController extends Controller implements PermissionProvider
             $templates = [$templates];
         }
         // Always include page template as fallback
-        if (count($templates) == 0 || $templates[count($templates) - 1] !== \Page::class) {
-            array_push($templates, \Page::class);
+        if (count($templates) == 0 || $templates[count($templates) - 1] !== 'Page') {
+            array_push($templates, 'Page');
         }
         // otherwise it renders funny
         $templates = ['type' => 'Layout'] + $templates;
