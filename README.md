@@ -28,6 +28,19 @@ FSWebWorks\SilverStripe\UserInvitations\Model\UserInvitation:
     force_require_group: true
 ```
 
+### Template override
+To update the base template use `updateMainTemplates`. It defaults to `Page`.
+
+```php
+/**
+ * @param array $mainTemplates
+ */
+public function updateMainTemplates(&$mainTemplates)
+{
+    array_unshift($mainTemplates, 'InvitationPage');
+}
+```
+
 ## Installation
 
  ```sh
